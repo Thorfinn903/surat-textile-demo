@@ -1,0 +1,79 @@
+/* --- Google Fonts (Royal Look) --- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* --- Navbar (Premium Black & Gold) --- */
+.navbar {
+    background: #1a1a1a !important; /* Dark Black */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #d4af37 !important; /* Gold Color */
+    letter-spacing: 1px;
+}
+.nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.nav-link:hover {
+    color: #d4af37 !important; /* Hover pe Gold */
+}
+
+/* --- Product Cards (Showroom Style) --- */
+.product-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    background: white;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.product-card:hover {
+    transform: translateY(-10px); /* Upar uthega */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1); /* Shadow banegi */
+}
+.card-img-top {
+    height: 350px;
+    object-fit: cover;
+    object-position: top;
+    transition: 0.5s;
+}
+.product-card:hover .card-img-top {
+    transform: scale(1.05); /* Photo thodi zoom hogi */
+}
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #333;
+}
+
+/* --- Floating WhatsApp Button (Sales Magnet) --- */
+.float-whatsapp {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 30px;
+    right: 30px;
+    background-color: #25d366;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 35px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: flex; /* Centering the icon */
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.float-whatsapp:hover {
+    background-color: #128C7E;
+    transform: scale(1.1);
+}
