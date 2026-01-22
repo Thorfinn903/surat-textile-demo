@@ -1,96 +1,351 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Upload Saree</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+{% extends "base.html" %}
 
-    <div class="container mt-5">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>🛠️ Admin Panel - Upload New Saree</h4>
-            </div>
-            <div class="card-body">
-                
-                <form action="/admin" method="POST" enctype="multipart/form-data">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Design Number / Name:</label>
-                        <input type="text" name="name" class="form-control" placeholder="Ex: Banarasi Silk 101" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Category:</label>
-                        <select name="category" class="form-select">
-                            <option value="Silk">Silk Saree</option>
-                            <option value="Cotton">Cotton Saree</option>
-                            <option value="Bridal">Bridal Wear</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Photo Upload Karein:</label>
-                        <input type="file" name="image" class="form-control" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100">Upload & Live 🚀</button>
-                    
-                </form>
-                <div class="mt-3 text-center">
-                    <a href="/" class="text-decoration-none">← Back to Website</a>
-                </div>
-
+{% block content %}
+<div class="admin-panel">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="mb-0" style="font-family: 'Playfair Display', serif; color: var(--dark); font-size: 2.5rem;">
+                    Admin Dashboard
+                </h1>
+                <p class="text-muted mb-4">Manage your textile catalog</p>
             </div>
         </div>
 
-        <hr class="my-5">
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="admin-card">
+                    <div class="admin-card-body text-center">
+                        <div class="text-muted small mb-2" style="text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total Catalog</div>
+                        <h2 class="mb-0 fw-bold" style="color: var(--gold); font-size: 2.5rem;">{{ products|length }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-card">
+                    <div class="admin-card-body text-center">
+                        <div class="text-muted small mb-2" style="text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Ready Stock</div>
+                        {% set ready = products | selectattr('stock', 'equalto', 'In Stock') | list | length %}
+                        <h2 class="mb-0 fw-bold" style="color: var(--whatsapp-green); font-size: 2.5rem;">{{ ready }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-card">
+                    <div class="admin-card-body text-center">
+                        <div class="text-muted small mb-2" style="text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Sold Out</div>
+                        {% set sold = products | selectattr('stock', 'equalto', 'Sold Out') | list | length %}
+                        <h2 class="mb-0 fw-bold" style="color: #DC3545; font-size: 2.5rem;">{{ sold }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="admin-card">
+                    <div class="admin-card-body text-center">
+                        <div class="text-muted small mb-2" style="text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Trending</div>
+                        {% set trending = products | selectattr('inquiry_count', 'gt', 0) | list | length %}
+                        <h2 class="mb-0 fw-bold" style="color: var(--gold); font-size: 2.5rem;">{{ trending }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <h4 class="mb-3">📋 Manage Inventory</h4>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: 12px; border: none; box-shadow: var(--shadow-soft);">
+                    <i class="fas fa-check-circle me-2"></i> {{ messages[0] }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endwith %}
 
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Photo</th>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr>
-                        <td>
-                            <img src="{{ url_for('static', filename='images/' + product.image) }}" width="50" height="50" style="object-fit:cover;">
-                        </td>
-                        <td>{{ product.name }} <br> <small class="text-muted">{{ product.category }}</small></td>
-                        <td>
-                            {% if product.stock == 'In Stock' %}
-                                <span class="badge bg-success">In Stock</span>
-                            {% else %}
-                                <span class="badge bg-danger">Sold Out</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="/toggle_stock/{{ product.id }}" class="btn btn-sm btn-warning">
-                                Change Stock
-                            </a>
-                            
-                            <a href="/delete/{{ product.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Pakka delete karna hai?')">
-                                🗑️
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <!-- Upload New Product -->
+        <div class="row mb-4">
+            <div class="col-12 col-lg-6">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <i class="fas fa-plus-circle me-2"></i>Upload New Design
+                    </div>
+                    <div class="admin-card-body">
+                        <form action="/admin" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="add_product" value="true">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold" style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: var(--dark);">Design Name</label>
+                                <input type="text" name="name" class="form-control form-control-lg" placeholder="e.g. Silk Zari Work" required style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 14px;">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: var(--dark);">Category</label>
+                                    <select name="category" class="form-select form-select-lg" style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 14px;">
+                                        <option>Silk</option>
+                                        <option>Cotton</option>
+                                        <option>Wedding</option>
+                                        <option>Print</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" style="text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; color: var(--dark);">Upload Photo</label>
+                                    <input type="file" name="image" class="form-control form-control-lg" required accept="image/*" style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 14px;">
+                                </div>
+                            </div>
+                            <button type="submit" class="admin-btn-large admin-btn-primary">
+                                <i class="fas fa-upload me-2"></i>Upload & Go Live
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% if current_user.role == 'admin' %}
+            <div class="col-12 col-lg-6">
+                <div class="admin-card">
+                    <div class="admin-card-header" style="background: linear-gradient(135deg, #6C757D 0%, #5A6268 100%);">
+                        <i class="fas fa-users me-2"></i>Team Access
+                    </div>
+                    <div class="admin-card-body">
+                        <form action="/admin" method="POST" class="mb-4">
+                            <input type="hidden" name="create_user" value="true">
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <input type="text" name="new_username" class="form-control" placeholder="Username" required style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 12px;">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" name="new_password" class="form-control" placeholder="Password" required style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 12px;">
+                                </div>
+                                <div class="col-8">
+                                    <select name="role" class="form-select" style="border-radius: 12px; border: 2px solid #E5E5E5; padding: 12px;">
+                                        <option value="sales">Sales (Stock Only)</option>
+                                        <option value="admin">Full Admin</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="btn w-100" style="background: var(--gold); color: white; border-radius: 12px; font-weight: 700; padding: 12px;">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="small fw-bold text-muted mb-3" style="text-transform: uppercase; letter-spacing: 0.5px;">Active Team</div>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            {% for user in all_users %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-3" style="background: var(--bg-luxury); border-radius: 12px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold">{{ user.username }}</span>
+                                    {% if user.id == current_user.id %}
+                                    <span class="badge bg-info" style="padding: 4px 8px; border-radius: 50px; font-size: 9px;">You</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge" style="background: {% if user.role == 'admin' %}#DC3545{% else %}var(--gold){% endif %}; color: white; padding: 6px 12px; border-radius: 50px; font-size: 11px; text-transform: uppercase;">{{ user.role }}</span>
+                                    {% if user.id != current_user.id %}
+                                    <a href="/delete-user/{{ user.id }}" 
+                                       class="btn btn-sm" 
+                                       onclick="return confirm('Are you sure you want to delete user \"{{ user.username }}\"? This action cannot be undone.');"
+                                       style="background: #DC3545; color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; text-decoration: none;">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Trending Products Detail (Admin Only) -->
+        {% if current_user.role == 'admin' and trending_products %}
+        <div class="admin-card mb-4">
+            <div class="admin-card-header" style="background: linear-gradient(135deg, var(--gold) 0%, #B8904F 100%);">
+                <i class="fas fa-fire me-2"></i>Top Trending Designs
+                <span class="badge bg-light text-dark ms-2" style="padding: 6px 12px; border-radius: 50px;">Top 10</span>
+            </div>
+            <div class="admin-card-body p-0">
+                <div style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-sm mb-0">
+                        <thead style="background: var(--bg-luxury); position: sticky; top: 0;">
+                            <tr>
+                                <th class="ps-4 py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Rank</th>
+                                <th class="py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Design</th>
+                                <th class="py-2 text-center" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Inquiries</th>
+                                <th class="py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Status</th>
+                                <th class="py-2 text-end pe-4" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in trending_products %}
+                            <tr style="border-bottom: 1px solid #F0F0F0;">
+                                <td class="ps-4 py-2" style="font-size: 14px; font-weight: 700; color: var(--gold);">
+                                    {% if loop.index == 1 %}
+                                        <span style="color: #FFD700;">🥇</span>
+                                    {% elif loop.index == 2 %}
+                                        <span style="color: #C0C0C0;">🥈</span>
+                                    {% elif loop.index == 3 %}
+                                        <span style="color: #CD7F32;">🥉</span>
+                                    {% else %}
+                                        #{{ loop.index }}
+                                    {% endif %}
+                                </td>
+                                <td class="py-2">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ url_for('static', filename='images/' + product.image) }}" 
+                                             class="rounded me-2" width="50" height="60" 
+                                             style="object-fit: cover; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" 
+                                             alt="D.No: {{ product.id + 1000 }}">
+                                        <div>
+                                            <div class="fw-bold mb-0" style="font-size: 13px; color: var(--dark);">D.No: {{ product.id + 1000 }}</div>
+                                            <div class="text-muted" style="font-size: 11px;">{{ product.name }}</div>
+                                            <div class="text-muted small" style="font-size: 10px; text-transform: uppercase;">{{ product.category }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2 text-center">
+                                    <span class="badge" style="background: var(--gold); color: white; padding: 6px 12px; border-radius: 50px; font-size: 13px; font-weight: 700;">
+                                        <i class="fas fa-fire me-1"></i>{{ product.inquiry_count }}
+                                    </span>
+                                </td>
+                                <td class="py-2">
+                                    {% if product.stock == 'In Stock' %}
+                                        <span class="badge bg-success" style="font-size: 10px; padding: 4px 8px;">READY</span>
+                                    {% else %}
+                                        <span class="badge bg-danger" style="font-size: 10px; padding: 4px 8px;">SOLD OUT</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-2 text-end pe-4">
+                                    <a href="/toggle-stock/{{ product.id }}" class="btn btn-sm" style="background: var(--gold); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-decoration: none;">
+                                        <i class="fas fa-sync-alt me-1"></i>Toggle
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3" style="background: var(--bg-luxury); border-top: 1px solid #F0F0F0;">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Trending is calculated based on total inquiry count. Products with more inquiries appear higher in the list.
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Activity Log (Admin Only) -->
+        {% if current_user.role == 'admin' and recent_activities %}
+        <div class="admin-card mb-4">
+            <div class="admin-card-header" style="background: linear-gradient(135deg, #6C757D 0%, #5A6268 100%);">
+                <i class="fas fa-history me-2"></i>Recent Activity Log
+            </div>
+            <div class="admin-card-body p-0">
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-sm mb-0">
+                        <thead style="background: var(--bg-luxury); position: sticky; top: 0;">
+                            <tr>
+                                <th class="ps-4 py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Time</th>
+                                <th class="py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">User</th>
+                                <th class="py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Activity</th>
+                                <th class="py-2" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666;">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in recent_activities %}
+                            <tr style="border-bottom: 1px solid #F0F0F0;">
+                                <td class="ps-4 py-2" style="font-size: 12px; color: #666;">
+                                    {{ activity.activity_date.strftime('%d %b %Y, %I:%M %p') }}
+                                </td>
+                                <td class="py-2" style="font-size: 12px; font-weight: 600;">
+                                    {{ activity.username }}
+                                </td>
+                                <td class="py-2">
+                                    {% if activity.activity_type == 'login' %}
+                                        <span class="badge bg-success" style="font-size: 10px; padding: 4px 8px;">Login</span>
+                                    {% elif activity.activity_type == 'logout' %}
+                                        <span class="badge bg-secondary" style="font-size: 10px; padding: 4px 8px;">Logout</span>
+                                    {% elif activity.activity_type == 'stock_change' %}
+                                        <span class="badge bg-warning text-dark" style="font-size: 10px; padding: 4px 8px;">Stock Change</span>
+                                    {% elif activity.activity_type == 'user_deleted' %}
+                                        <span class="badge bg-danger" style="font-size: 10px; padding: 4px 8px;">User Deleted</span>
+                                    {% else %}
+                                        <span class="badge bg-info" style="font-size: 10px; padding: 4px 8px;">{{ activity.activity_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-2" style="font-size: 11px; color: #666;">
+                                    {% if activity.activity_type == 'stock_change' %}
+                                        D.No: {{ activity.product_id + 1000 }} - {{ activity.old_value }} → {{ activity.new_value }}
+                                    {% else %}
+                                        {{ activity.details or '-' }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Inventory Manager -->
+        <div class="admin-card">
+            <div class="admin-card-header" style="background: linear-gradient(135deg, var(--dark) 0%, #2C2C2C 100%);">
+                <i class="fas fa-boxes me-2"></i>Inventory Manager
+                <span class="badge bg-light text-dark ms-2" style="padding: 6px 12px; border-radius: 50px;">{{ products|length }} Active</span>
+            </div>
+            <div class="admin-card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead style="background: var(--bg-luxury);">
+                            <tr>
+                                <th class="ps-4 py-3" style="text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; font-weight: 700; color: #666;">Design</th>
+                                <th class="py-3" style="text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; font-weight: 700; color: #666;">Status</th>
+                                <th class="text-end pe-4 py-3" style="text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; font-weight: 700; color: #666;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr style="border-bottom: 1px solid #F0F0F0;">
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ url_for('static', filename='images/' + product.image) }}" 
+                                             class="rounded me-3" width="60" height="75" 
+                                             style="object-fit: cover; border-radius: 8px; box-shadow: var(--shadow-soft);" 
+                                             alt="D.No: {{ product.id + 1000 }}">
+                                        <div>
+                                            <div class="fw-bold mb-1" style="font-size: 15px; color: var(--dark);">D.No: {{ product.id + 1000 }}</div>
+                                            <div class="text-muted" style="font-size: 12px;">{{ product.name }}</div>
+                                            <div class="text-muted small" style="font-size: 11px; text-transform: uppercase;">{{ product.category }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <a href="/toggle-stock/{{ product.id }}" class="stock-toggle-btn {% if product.stock == 'In Stock' %}ready{% else %}sold-out{% endif %}">
+                                        {% if product.stock == 'In Stock' %}
+                                            <i class="fas fa-check-circle me-1"></i> READY
+                                        {% else %}
+                                            <i class="fas fa-times-circle me-1"></i> SOLD OUT
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td class="text-end pe-4 py-3">
+                                    {% if current_user.role == 'admin' %}
+                                    <a href="/delete/{{ product.id }}" 
+                                       class="btn btn-sm admin-btn-danger" 
+                                       onclick="return confirm('Delete D.No: {{ product.id + 1000 }} permanently?');"
+                                       style="padding: 8px 16px; font-size: 12px; border-radius: 8px;">
+                                        <i class="fas fa-trash me-1"></i> Delete
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
-    
-
-</body>
-</html>
+</div>
+{% endblock %}

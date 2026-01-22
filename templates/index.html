@@ -1,131 +1,583 @@
-{% extends "base.html" %}  {% block content %}
+{% extends "base.html" %} {% block content %}
 
-<div class="container-fluid p-0 mb-5">
-    <div style="background: url('https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1600') no-repeat center center/cover; height: 500px; position: relative;">
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center;">
-            <h1 class="text-white display-3 fw-bold" style="font-family: 'Playfair Display', serif;">New Wedding Collection 2026</h1>
-            <p class="text-white lead mb-4">Direct from Surat Factory | Best Wholesale Rates</p>
-            <a href="#collection" class="btn btn-warning btn-lg px-5 py-3 fw-bold rounded-pill">View Designs</a>
-        </div>
+<header class="hero-section">
+  <div class="container text-white">
+    <h1
+      class="display-3 fw-bold mb-3"
+      style="font-family: 'Playfair Display', serif"
+    >
+      Leading Textile Hub of India
+    </h1>
+    <p class="lead mb-5">
+      Premium Manufacturers & Exporters of Luxury Saree Fabrics.
+    </p>
+
+    <div class="d-flex justify-content-center gap-3">
+      <a
+        href="#collection"
+        class="btn btn-warning btn-lg px-5 rounded-pill fw-bold shadow"
+        >View Designs</a
+      >
+      {# <a href="#" class="btn btn-outline-light btn-lg px-4 rounded-pill"
+        >Download Catalog</a
+      > #}
     </div>
-</div>
+  </div>
+</header>
 
-<div class="container mb-5">
-    <div class="card p-4 shadow-sm border-0" style="background: #fff;">
-        <form action="/" method="get" class="row g-3">
-            
-            <div class="col-md-6">
-                <input type="text" name="q" class="form-control form-control-lg" placeholder="🔍 Search ">
-            </div>
-
-            <div class="col-md-4">
-                <select name="category" class="form-select form-select-lg">
-                    <option value="All">All Categories</option>
-                    <option value="Silk">Silk</option>
-                    <option value="Cotton">Cotton</option>
-                    <option value="Print">Print</option>
-                    <option value="Wedding">Wedding</option>
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold">Find 🚀</button>
-            </div>
+<div class="container search-container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card search-card-glass">
+        <form action="/" method="get" class="d-flex align-items-center">
+          <div class="input-group align-items-center">
+            <span class="ps-3 text-muted"><i class="fas fa-search"></i></span>
+            <input
+              type="text"
+              name="q"
+              class="form-control search-input"
+              placeholder="Search Design No or Fabric..."
+              value="{{ request.args.get('q', '') }}"
+            />
+            <button
+              type="submit"
+              class="btn btn-dark px-4 py-2 rounded-pill fw-bold"
+              style="border-radius: 50px"
+            >
+              <span class="d-none d-md-inline">FIND DESIGN</span>
+              <i class="fas fa-search d-md-none"></i>
+            </button>
+          </div>
         </form>
+      </div>
     </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="category-pills-container">
+        <a
+          href="/"
+          class="pill-item {% if request.args.get('category', 'All') == 'All' %}active{% endif %}"
+          >All Collection</a
+        >
+        <a
+          href="/?category=Silk"
+          class="pill-item {% if request.args.get('category') == 'Silk' %}active{% endif %}"
+          >Silk</a
+        >
+        <a
+          href="/?category=Cotton"
+          class="pill-item {% if request.args.get('category') == 'Cotton' %}active{% endif %}"
+          >Cotton</a
+        >
+        <a
+          href="/?category=Wedding"
+          class="pill-item {% if request.args.get('category') == 'Wedding' %}active{% endif %}"
+          >Wedding</a
+        >
+        <a
+          href="/?category=Print"
+          class="pill-item {% if request.args.get('category') == 'Print' %}active{% endif %}"
+          >Print</a
+        >
+      </div>
+      <div class="smart-filter-container">
+        <span
+          style="
+            font-size: 11px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+          "
+          >Work Type:</span
+        >
+        <a
+          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='All', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
+          class="smart-filter-pill {% if request.args.get('work_type', 'All') == 'All' %}active{% endif %}"
+          >All</a
+        >
+        <a
+          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Zari', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
+          class="smart-filter-pill {% if request.args.get('work_type') == 'Zari' %}active{% endif %}"
+          >Zari</a
+        >
+        <a
+          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Embroidery', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
+          class="smart-filter-pill {% if request.args.get('work_type') == 'Embroidery' %}active{% endif %}"
+          >Embroidery</a
+        >
+        <a
+          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Print', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
+          class="smart-filter-pill {% if request.args.get('work_type') == 'Print' %}active{% endif %}"
+          >Print</a
+        >
+        <a
+          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Handwork', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
+          class="smart-filter-pill {% if request.args.get('work_type') == 'Handwork' %}active{% endif %}"
+          >Handwork</a
+        >
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="collection" class="container py-5">
-    <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif;">Latest Collection</h2>
+
+
+
+  <!-- Trending Section -->
+  {#
+  <div class="container mb-5">
+    <h3 class="fw-bold mb-4 text-center" 
+        style="font-family: 'Playfair Display', serif; color: var(--dark); font-size: 2.2rem;">
+        <span style="color: #C5A059;">🔥</span> Trending in Surat
+    </h3>
     
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-4 col-6 mb-4">
-            <div class="card product-card h-100 shadow-sm">
-                <img src="{{ url_for('static', filename='images/' + product.image) }}" 
-                     class="card-img-top" 
-                     alt="Buy {{ product.name }} {{ product.category }} saree wholesale surat">
-                
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="text-muted mb-1">Category: {{ product.category }}</p>
-                    
-                    {% if product.stock == 'Sold Out' %}
-                        <span class="badge bg-danger">Sold Out</span>
-                    {% else %}
-                        <span class="badge bg-success">In Stock</span>
-                        <a href="https://wa.me/919081653925?text=Price for {{ product.name }}" class="btn btn-dark btn-sm d-block mt-3">WhatsApp Rate 💬</a>
-                    {% endif %}
-                </div>
+    <div class="d-flex justify-content-center">
+        <div class="trending-scroll-container" id="trending-scroll-container">
             </div>
-        </div>
-        {% endfor %}
     </div>
+  </div>
+  #}
+
+<div id="collection" class="container py-5 mt-4">
+  <h2
+    class="fw-bold mb-5"
+    style="
+      font-family: 'Playfair Display', serif;
+      color: var(--dark);
+      font-size: 2.5rem;
+    "
+  >
+    Latest Volumes
+  </h2>
+
+  {% if products %}
+  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for product in products %}
+    <div class="col">
+      <div
+        class="card b2b-showroom-card h-100"
+        data-product-id="{{ product.id }}"
+        data-product-name="{{ product.name }}"
+        data-product-image="{{ product.image }}"
+      >
+        <div class="img-overlay-container">
+          <img
+            src="{{ url_for('static', filename='images/' + product.image) }}"
+            class="showroom-img product-main-image"
+            alt="{{ product.name }}"
+            loading="lazy"
+            data-product-id="{{ product.id }}"
+          />
+
+          <!-- Zoom Icon -->
+          <div
+            class="zoom-icon-overlay"
+            onclick="openMacroZoom({{ product.id }}, '{{ url_for('static', filename='images/' + product.image) }}')"
+          >
+            <i class="fas fa-search-plus"></i>
+          </div>
+
+          <span
+            class="badge-stock-luxury {% if product.stock == 'In Stock' %}ready{% else %}booking{% endif %}"
+          >
+            {{ product.stock }}
+          </span>
+          <div class="d-no-tag-luxury">D.No: {{ product.id + 1000 }}</div>
+
+          <!-- Live Inquiry Counter -->
+          <div class="live-inquiry-badge" id="inquiry-badge-{{ product.id }}">
+            <i class="fas fa-fire"></i>
+            <span class="inquiry-count-text">Loading...</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <h5 class="product-title-luxury mb-1">{{ product.name }}</h5>
+          <p class="text-muted small mb-3 text-uppercase">
+            {{ product.category }} | Premium Set
+          </p>
+
+          <!-- Color Swatches (Placeholder - can be enhanced with actual color data) -->
+          <div
+            class="color-swatches-container"
+            id="color-swatches-{{ product.id }}"
+            style="display: none"
+          >
+            <!-- Color swatches will be added via JavaScript if color variants exist -->
+            <!-- In production, this would be populated from database color_variants field -->
+          </div>
+
+          <!-- Stock Progress Bar (if stock is low) -->
+          {# 
+          <div
+            class="stock-progress-container"
+            id="stock-progress-{{ product.id }}"
+            style="display: none"
+          >
+            <div class="stock-progress-bar">
+              <div
+                class="stock-progress-fill"
+                id="stock-fill-{{ product.id }}"
+              ></div>
+            </div>
+            <div
+              class="stock-progress-text"
+              id="stock-text-{{ product.id }}"
+            ></div>
+          </div>
+          #}
+
+          <div class="d-grid gap-2">
+            <button
+              onclick="shareToClient({{ product.id }}, '{{ url_for('static', filename='images/' + product.image) }}', '{{ product.name }}', {{ product.id + 1000 }})"
+              class="btn btn-share-client"
+            >
+              <i class="fas fa-share-alt me-1"></i> Share to Client
+            </button>
+            <button
+              onclick="toggleInquiry(this)"
+              data-id="{{ product.id + 1000 }}"
+              data-name="{{ product.name }}"
+              class="btn btn-outline-dark btn-sm mb-2"
+              style="
+                border-radius: 8px;
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 11px;
+                letter-spacing: 0.5px;
+                padding: 10px;
+              "
+            >
+              <i class="fas fa-plus me-1"></i> ADD TO LIST
+            </button>
+            <a
+              href="https://wa.me/{{ whatsapp_no }}?text=Inquiry for D.No: {{ product.id + 1000 }} - {{ product.name }}"
+              class="btn btn-whatsapp-premium"
+              onclick="trackInquiry({{ product.id }}); trackProductView({{ product.id }}, '{{ product.name }}', '{{ product.image }}');"
+            >
+              WHATSAPP RATE
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <p class="text-muted">
+      No products found. Try a different search or category.
+    </p>
+  </div>
+  {% endif %}
 </div>
 
-<div class="container py-5 my-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold" style="font-family: 'Playfair Display', serif;">Why Choose Us?</h2>
-        <p class="text-muted">Market mein bohot hain, par hum khaas hain.</p>
-    </div>
-    <div class="row text-center">
-        <div class="col-md-4 mb-4">
-            <div class="p-4 bg-white shadow-sm rounded h-100">
-                <i class="fas fa-truck fa-3x text-warning mb-3"></i>
-                <h4>Fast Delivery</h4>
-                <p class="text-muted small">Surat se seedha aapki dukaan tak, 5-7 din mein delivery.</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="p-4 bg-white shadow-sm rounded h-100">
-                <i class="fas fa-tags fa-3x text-warning mb-3"></i>
-                <h4>Factory Rates</h4>
-                <p class="text-muted small">Koi middleman nahi. Seedha manufacturing cost par maal uthao.</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="p-4 bg-white shadow-sm rounded h-100">
-                <i class="fas fa-check-circle fa-3x text-warning mb-3"></i>
-                <h4>Quality Check</h4>
-                <p class="text-muted small">Har saree pack hone se pehle 2 baar check hoti hai.</p>
-            </div>
-        </div>
-    </div>
+<!-- Macro Zoom Modal -->
+ 
+<div class="zoom-modal" id="zoom-modal" onclick="closeMacroZoom(event)">
+  <div class="zoom-modal-content" onclick="event.stopPropagation()">
+    <div class="zoom-modal-close" onclick="closeMacroZoom(event)">&times;</div>
+    <img id="zoom-modal-image" src="" alt="Zoom View" />
+  </div>
 </div>
 
-<div class="bg-dark text-white py-5 mt-5">
-    <div class="container text-center">
-        <h2 class="mb-5" style="font-family: 'Playfair Display', serif;">What Our Clients Say</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card bg-secondary text-white border-0 h-100 p-3">
-                    <div class="card-body">
-                        <i class="fas fa-quote-left fa-2x text-warning mb-3"></i>
-                        <p>"Best quality sarees in Surat market."</p>
-                        <h5 class="mt-3">- Priya Sharma</h5>
-                    </div>
-                </div>
+<script>
+  function trackInquiry(productId) {
+    fetch("/track-inquiry/" + productId, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(() => {
+        // Update inquiry count after tracking
+        getTodayInquiryCount(productId);
+      })
+      .catch((err) => console.log("Tracking error:", err));
+  }
+
+  function openMacroZoom(productId, imageUrl) {
+    const modal = document.getElementById("zoom-modal");
+    const img = document.getElementById("zoom-modal-image");
+    img.src = imageUrl;
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMacroZoom(event) {
+    event.stopPropagation();
+    const modal = document.getElementById("zoom-modal");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  // Close modal on Escape key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      closeMacroZoom({ stopPropagation: () => {} });
+    }
+  });
+
+  function getTodayInquiryCount(productId) {
+    fetch(`/api/inquiry-count/${productId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const badge = document.getElementById(`inquiry-badge-${productId}`);
+        if (badge) {
+          const countText = badge.querySelector(".inquiry-count-text");
+          if (countText) {
+            if (data.count > 0) {
+              countText.textContent = `${data.count} inquired today`;
+              badge.style.display = "flex";
+            } else {
+              badge.style.display = "none";
+            }
+          }
+        }
+      })
+      .catch((err) => console.log("Inquiry count error:", err));
+  }
+
+  function trackProductView(productId, productName, productImage) {
+    // Save to localStorage for recent history
+    let history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
+
+    // Remove if already exists
+    history = history.filter((item) => item.id !== productId);
+
+    // Add to beginning
+    history.unshift({
+      id: productId,
+      name: productName,
+      image: productImage,
+      designNo: productId + 1000,
+    });
+
+    // Keep only last 5
+    history = history.slice(0, 5);
+
+    localStorage.setItem("recentHistory", JSON.stringify(history));
+    updateRecentHistory();
+  }
+
+  function updateRecentHistory() {
+    const history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
+    const container = document.getElementById("recent-history-container");
+    const bar = document.getElementById("recent-history-bar");
+
+    if (history.length === 0) {
+      bar.classList.add("d-none");
+      return;
+    }
+
+    bar.classList.remove("d-none");
+    container.innerHTML = "";
+
+    history.forEach((item) => {
+      const div = document.createElement("div");
+      div.className = "recent-history-item";
+      div.onclick = () => {
+        // Scroll to product or show details
+        const productCard = document.querySelector(
+          `[data-product-id="${item.id}"]`
+        );
+        if (productCard) {
+          productCard.scrollIntoView({ behavior: "smooth", block: "center" });
+          productCard.style.boxShadow = "0 0 0 4px rgba(197, 160, 89, 0.5)";
+          setTimeout(() => {
+            productCard.style.boxShadow = "";
+          }, 2000);
+        }
+      };
+      div.innerHTML = `<img src="{{ url_for('static', filename='images/') }}${item.image}" alt="${item.name}">`;
+      container.appendChild(div);
+    });
+  }
+
+  function shareToClient(productId, imageUrl, productName, designNo) {
+    // Create a temporary link to download the image
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = `D.No-${designNo}-${productName.replace(/\s+/g, "-")}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Open WhatsApp with message (no price/details)
+    const message = `Check this design: D.No ${designNo} - ${productName}`;
+    const whatsappUrl = `https://wa.me/{{ whatsapp_no }}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  }
+
+  function switchColorVariant(productId, colorIndex, imageUrl) {
+    // Switch the product image to the selected color variant
+    const productImage = document.querySelector(
+      `.product-main-image[data-product-id="${productId}"]`
+    );
+    if (productImage) {
+      productImage.src = imageUrl;
+      // Update active swatch
+      const container = document.getElementById(`color-swatches-${productId}`);
+      if (container) {
+        container.querySelectorAll(".color-swatch").forEach((swatch, idx) => {
+          if (idx === colorIndex) {
+            swatch.classList.add("active");
+          } else {
+            swatch.classList.remove("active");
+          }
+        });
+      }
+    }
+  }
+
+  function initColorSwatches() {
+    // Initialize color swatches for products that have color variants
+    // This is a placeholder - in production, color variants would come from database
+    // For demo: Add color swatches to first few products
+    document.querySelectorAll("[data-product-id]").forEach((card, index) => {
+      if (index < 3) {
+        // Demo: Add to first 3 products
+        const productId = card.getAttribute("data-product-id");
+        const container = document.getElementById(
+          `color-swatches-${productId}`
+        );
+        if (container) {
+          container.style.display = "flex";
+          // Demo colors - in production, these would come from database
+          const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A"];
+          colors.forEach((color, idx) => {
+            const swatch = document.createElement("div");
+            swatch.className = `color-swatch ${idx === 0 ? "active" : ""}`;
+            swatch.style.backgroundColor = color;
+            swatch.onclick = () => {
+              // In production, this would load the actual color variant image
+              // For demo, we'll just switch the active state
+              switchColorVariant(parseInt(productId), idx, "");
+            };
+            container.appendChild(swatch);
+          });
+        }
+      }
+    });
+  }
+
+  function loadTrendingProducts() {
+    fetch("/api/trending")
+      .then((response) => response.json())
+      .then((data) => {
+        const container = document.getElementById("trending-scroll-container");
+        const section = document.getElementById("trending-section");
+
+        if (data.products && data.products.length > 0) {
+          section.style.display = "block";
+          container.innerHTML = "";
+
+          data.products.forEach((product) => {
+            const card = document.createElement("div");
+            card.className = "trending-card";
+            card.onclick = () => {
+              window.location.href = `/?q=${product.id + 1000}`;
+            };
+            card.innerHTML = `
+            <img src="{{ url_for('static', filename='images/') }}${
+              product.image
+            }" class="trending-card-img" alt="${product.name}">
+            <div class="trending-card-body">
+              <div class="trending-card-title">${product.name}</div>
+              <div class="trending-card-dno">D.No: ${product.id + 1000}</div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card bg-secondary text-white border-0 h-100 p-3">
-                    <div class="card-body">
-                        <i class="fas fa-quote-left fa-2x text-warning mb-3"></i>
-                        <p>"Regular supplier, very trusted."</p>
-                        <h5 class="mt-3">- Rahul Verma</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card bg-secondary text-white border-0 h-100 p-3">
-                    <div class="card-body">
-                        <i class="fas fa-quote-left fa-2x text-warning mb-3"></i>
-                        <p>"Fast delivery and good packaging."</p>
-                        <h5 class="mt-3">- Anjali Patil</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+          `;
+            container.appendChild(card);
+          });
+        }
+      })
+      .catch((err) => console.log("Trending products error:", err));
+  }
+
+  function updateStockBar(productId, stockStatus) {
+    // For demo: simulate low stock for some products
+    // In production, this would come from database stock_quantity field
+    const stockProgress = document.getElementById(
+      `stock-progress-${productId}`
+    );
+    const stockFill = document.getElementById(`stock-fill-${productId}`);
+    const stockText = document.getElementById(`stock-text-${productId}`);
+
+    if (stockProgress && stockStatus === "In Stock") {
+      // Simulate: Show low stock for products with high inquiry count or random selection
+      // This is a placeholder - replace with actual stock quantity from database
+      const shouldShowLowStock = Math.random() < 0.2; // 20% chance for demo
+
+      if (shouldShowLowStock) {
+        const stockLeft = Math.floor(Math.random() * 8) + 2; // 2-9 sets left
+        const percentage = (stockLeft / 10) * 100;
+
+        stockProgress.style.display = "block";
+        stockFill.style.width = `${percentage}%`;
+        stockText.textContent = `Only ${stockLeft} sets left in Factory`;
+      } else {
+        stockProgress.style.display = "none";
+      }
+    } else {
+      if (stockProgress) stockProgress.style.display = "none";
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Load inquiry counts for all products
+    document.querySelectorAll("[data-product-id]").forEach((card) => {
+      const productId = card.getAttribute("data-product-id");
+      getTodayInquiryCount(parseInt(productId));
+
+      // Update stock bar
+      const stockStatus =
+        card.querySelector(".badge-stock-luxury")?.textContent.trim() ||
+        "In Stock";
+      updateStockBar(parseInt(productId), stockStatus);
+    });
+
+    // Load trending products
+    loadTrendingProducts();
+
+    // Update recent history
+    updateRecentHistory();
+
+    // Initialize color swatches
+    initColorSwatches();
+
+    // Track product views when cards come into view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const productId = parseInt(
+              entry.target.getAttribute("data-product-id")
+            );
+            const productName = entry.target.getAttribute("data-product-name");
+            const productImage =
+              entry.target.getAttribute("data-product-image");
+            trackProductView(productId, productName, productImage);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    document.querySelectorAll("[data-product-id]").forEach((card) => {
+      observer.observe(card);
+    });
+  });
+</script>
 
 {% endblock %}
