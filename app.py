@@ -14,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///textile.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_PERMANENT'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 db = SQLAlchemy(app)
 
@@ -190,12 +191,11 @@ def logout():
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    # Security: Clients cannot access admin panel
     if current_user.role == 'client':
         return "Access Denied!"
 
     if request.method == 'POST':
-        # --- 1. ADD PRODUCT LOGIC ---
+        # Add New Product Logic
         if 'add_product' in request.form:
             name = request.form.get('name')
             category = request.form.get('category')
@@ -207,72 +207,49 @@ def admin():
                 filename = f"{name.replace(' ', '_')}_{timestamp}.webp"
                 filepath = os.path.join('static/images', filename)
                 
-                # Image Optimization
+                # --- IMAGE OPTIMIZATION ENGINE ---
                 img = Image.open(file)
-                img = img.convert("RGB")
+                img = img.convert("RGB") # Ensure standard color mode
+                
+                # Resize logic: Set maximum width to 800px for fast loading
                 if img.width > 800:
                     output_size = (800, int((800 / img.width) * img.height))
                     img = img.resize(output_size, Image.LANCZOS)
+                    
+                # Save as optimized WebP (Quality 80 is perfect for fabric detail)
                 img.save(filepath, "WEBP", quality=80)
                 
+                # Save the optimized filename to the database
                 new_product = Product(name=name, category=category, image=filename)
                 db.session.add(new_product)
                 db.session.commit()
-                flash('Saree uploaded and optimized!')
+                flash('Saree uploaded and automatically optimized for speed!')
 
-        # --- 2. CREATE USER LOGIC (FIXED) ---
-        elif 'create_user' in request.form:
-            # STRICT CHECK: Only Admin can add users
-            if current_user.role != 'admin':
-                flash("Unauthorized! Only Admins can create users.")
-            else:
+            # Create New User Logic (Admin Only)
+            elif 'create_user' in request.form:
+                if current_user.role != 'admin':
+                    return "Unauthorized action!"
+                
                 new_username = request.form.get('new_username')
                 new_password = request.form.get('new_password')
-                role = request.form.get('role', 'sales') # Default to sales if not specified
-                
-                # Logic is now INSIDE this block, so variables are defined
-                if new_username and new_password:
-                    if User.query.filter_by(username=new_username).first():
-                        flash('Username already exists!')
-                    else:
-                        hashed_pw = generate_password_hash(new_password, method='pbkdf2:sha256')
-                        new_user = User(username=new_username, password=hashed_pw, role=role)
-                        db.session.add(new_user)
-                        db.session.commit()
-                        
-                        # Log the activity
-                        activity = ActivityLog(
-                            user_id=current_user.id,
-                            username=current_user.username,
-                            activity_type='user_created',
-                            details=f'Created new user: {new_username} (Role: {role})'
-                        )
-                        db.session.add(activity)
-                        db.session.commit()
-                        
-                        flash(f'User created: {new_username}')
-                else:
-                    flash('Please fill username and password fields!')
+                role = request.form.get('role')
+            
+            if User.query.filter_by(username=new_username).first():
+                flash('Username exists!')
+            else:
+                hashed_pw = generate_password_hash(new_password, method='pbkdf2:sha256')
+                new_user = User(username=new_username, password=hashed_pw, role=role)
+                db.session.add(new_user)
+                db.session.commit()
+                flash(f'User created: {new_username}')
 
-    # --- DATA LOADING FOR DASHBOARD ---
     products = Product.query.all()
-    
-    # Only Admin sees user list and full logs
-    if current_user.role == 'admin':
-        all_users = User.query.all()
-        recent_activities = ActivityLog.query.order_by(ActivityLog.activity_date.desc()).limit(50).all()
-    else:
-        # Sales team sees limited view
-        all_users = []
-        recent_activities = []
-
-    trending_products = Product.query.order_by(Product.inquiry_count.desc()).limit(5).all()
-    
-    return render_template('admin.html', 
-                           products=products, 
-                           all_users=all_users, 
-                           recent_activities=recent_activities, 
-                           trending_products=trending_products)
+    all_users = User.query.all() if current_user.role == 'admin' else []
+    # Get recent activity logs (last 50)
+    recent_activities = ActivityLog.query.order_by(ActivityLog.activity_date.desc()).limit(50).all() if current_user.role == 'admin' else []
+    # Get top 10 trending products (by inquiry_count)
+    trending_products = Product.query.order_by(Product.inquiry_count.desc()).limit(10).all()
+    return render_template('admin.html', products=products, all_users=all_users, recent_activities=recent_activities, trending_products=trending_products)
 
 # Step 6: One-Touch Stock Toggle Route
 @app.route('/toggle-stock/<int:id>')
