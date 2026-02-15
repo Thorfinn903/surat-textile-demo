@@ -25,125 +25,89 @@
   </div>
 </header>
 
-<div class="container search-container">
-  <div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10">
-      <div class="card search-card-glass">
-        <form action="/" method="get" class="d-flex align-items-center">
-          <div class="input-group align-items-center">
-            <span class="ps-3 text-muted"><i class="fas fa-search"></i></span>
-            <input
-              type="text"
-              name="q"
-              class="form-control search-input"
-              placeholder="Search Design No or Fabric..."
-              value="{{ request.args.get('q', '') }}"
-            />
-            <button
-              type="submit"
-              class="btn btn-dark px-4 py-2 rounded-pill fw-bold"
-              style="border-radius: 50px"
-            >
-              <span class="d-none d-md-inline">FIND DESIGN</span>
-              <i class="fas fa-search d-md-none"></i>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+
 <div class="container">
   <div class="row">
-    <div class="col-12">
-      <div class="category-pills-container">
-        <a
-          href="/"
-          class="pill-item {% if request.args.get('category', 'All') == 'All' %}active{% endif %}"
-          >All Collection</a
-        >
-        <a
-          href="/?category=Silk"
-          class="pill-item {% if request.args.get('category') == 'Silk' %}active{% endif %}"
-          >Silk</a
-        >
-        <a
-          href="/?category=Cotton"
-          class="pill-item {% if request.args.get('category') == 'Cotton' %}active{% endif %}"
-          >Cotton</a
-        >
-        <a
-          href="/?category=Wedding"
-          class="pill-item {% if request.args.get('category') == 'Wedding' %}active{% endif %}"
-          >Wedding</a
-        >
-        <a
-          href="/?category=Print"
-          class="pill-item {% if request.args.get('category') == 'Print' %}active{% endif %}"
-          >Print</a
-        >
-      </div>
-      <div class="smart-filter-container">
-        <span
-          style="
-            font-size: 11px;
-            font-weight: 700;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-right: 8px;
-            display: flex;
-            align-items: center;
-          "
-          >Work Type:</span
-        >
-        <a
-          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='All', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
-          class="smart-filter-pill {% if request.args.get('work_type', 'All') == 'All' %}active{% endif %}"
-          >All</a
-        >
-        <a
-          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Zari', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
-          class="smart-filter-pill {% if request.args.get('work_type') == 'Zari' %}active{% endif %}"
-          >Zari</a
-        >
-        <a
-          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Embroidery', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
-          class="smart-filter-pill {% if request.args.get('work_type') == 'Embroidery' %}active{% endif %}"
-          >Embroidery</a
-        >
-        <a
-          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Print', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
-          class="smart-filter-pill {% if request.args.get('work_type') == 'Print' %}active{% endif %}"
-          >Print</a
-        >
-        <a
-          href="{{ url_for('index', category=request.args.get('category', 'All'), work_type='Handwork', price_range=request.args.get('price_range', 'All'), q=request.args.get('q', '')) }}"
-          class="smart-filter-pill {% if request.args.get('work_type') == 'Handwork' %}active{% endif %}"
-          >Handwork</a
-        >
-      </div>
+<!-- ✨ UNIFIED COMMAND BAR (Clean & Simple) ✨ -->
+<div class="container position-relative" style="z-index: 100; margin-top: -35px; margin-bottom: 40px;">
+  <div class="unified-search-bar bg-white shadow-lg rounded-pill d-flex align-items-center p-2">
+    
+    <!-- Left: Search Input -->
+    <div class="d-flex align-items-center flex-grow-1 ps-3">
+      <i class="fas fa-search text-muted me-2"></i>
+      <input type="text" id="search-box" class="form-control border-0 shadow-none" 
+             placeholder="Search Design No, Fabric..." 
+             value="{{ request.args.get('q', '') }}"
+             style="font-size: 15px;">
     </div>
+
+    <!-- Vertical Divider -->
+    <div class="v-divider d-none d-md-block mx-3" style="width:1px; height:30px; background:#eee;"></div>
+
+    <!-- Middle: Filter Dropdowns (Desktop Only) -->
+    <div class="d-none d-md-flex align-items-center gap-3">
+      <select id="category-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
+        <option value="All" {% if request.args.get('category', 'All') == 'All' %}selected{% endif %}>Category</option>
+        {% for cat in product_category_options %}
+        <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+      
+      <select id="work-type-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
+        <option value="All" {% if request.args.get('work_type', 'All') == 'All' %}selected{% endif %}>Work Type</option>
+        <option value="Zari" {% if request.args.get('work_type') == 'Zari' %}selected{% endif %}>Zari</option>
+        <option value="Embroidery" {% if request.args.get('work_type') == 'Embroidery' %}selected{% endif %}>Embroidery</option>
+        <option value="Print" {% if request.args.get('work_type') == 'Print' %}selected{% endif %}>Print</option>
+        <option value="Handwork" {% if request.args.get('work_type') == 'Handwork' %}selected{% endif %}>Handwork</option>
+      </select>
+      
+      <select id="material-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
+        <option value="All" {% if request.args.get('material_type', 'All') == 'All' %}selected{% endif %}>Fabric</option>
+        {% for mat in material_type_options %}
+        <option value="{{ mat }}" {% if request.args.get('material_type') == mat %}selected{% endif %}>{{ mat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Right: Search Button -->
+    <button id="search-btn" class="btn btn-gold rounded-pill px-4 py-2 ms-2 fw-bold text-white">
+      SEARCH
+    </button>
+  </div>
+  
+  <!-- Clear Filters Link -->
+  <div class="text-center mt-3">
+    <button id="clear-filters-btn" class="btn btn-link text-decoration-underline" 
+            style="color: var(--gold); font-size: 13px; font-weight: 600;">
+      <i class="fas fa-redo-alt me-1" style="font-size: 11px;"></i>Clear All Filters
+    </button>
   </div>
 </div>
 
 
 
-
-  <!-- Trending Section -->
-  {#
-  <div class="container mb-5">
-    <h3 class="fw-bold mb-4 text-center" 
-        style="font-family: 'Playfair Display', serif; color: var(--dark); font-size: 2.2rem;">
-        <span style="color: #C5A059;">🔥</span> Trending in Surat
-    </h3>
-    
-    <div class="d-flex justify-content-center">
-        <div class="trending-scroll-container" id="trending-scroll-container">
-            </div>
+<div class="container trending-section" id="trending-section" style="display: none">
+  <div class="row justify-content-center">
+    <div class="col-12 text-center">
+      <div class="trending-track">
+        <h3
+          class="fw-bold mb-4 text-center"
+          style="
+            font-family: 'Playfair Display', serif;
+            color: var(--dark);
+            font-size: 2.2rem;
+          "
+        >
+          <span style="color: #c5a059">Trending Designs</span>
+        </h3>
+        <p class="text-center text-muted small mb-3" id="trending-caption"></p>
+        <div class="d-flex justify-content-center" style="width: 100%;">
+          <div class="trending-scroll-container" id="trending-scroll-container"></div>
+        </div>
+      </div>
     </div>
   </div>
-  #}
+</div>
 
 <div id="collection" class="container py-5 mt-4">
   <h2
@@ -158,9 +122,9 @@
   </h2>
 
   {% if products %}
-  <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+  <div class="row row-cols-1 row-cols-md-4 g-4 catalog-grid">
     {% for product in products %}
-    <div class="col">
+    <div class="col d-flex">
       <div
         class="card b2b-showroom-card h-100"
         data-product-id="{{ product.id }}"
@@ -201,18 +165,8 @@
         <div class="card-body">
           <h5 class="product-title-luxury mb-1">{{ product.name }}</h5>
           <p class="text-muted small mb-3 text-uppercase">
-            {{ product.category }} | Premium Set
+            {{ product.product_category or product.category }}{% if product.work_type %} | {{ product.work_type }}{% endif %}
           </p>
-
-          <!-- Color Swatches (Placeholder - can be enhanced with actual color data) -->
-          <div
-            class="color-swatches-container"
-            id="color-swatches-{{ product.id }}"
-            style="display: none"
-          >
-            <!-- Color swatches will be added via JavaScript if color variants exist -->
-            <!-- In production, this would be populated from database color_variants field -->
-          </div>
 
           <!-- Stock Progress Bar (if stock is low) -->
           {# 
@@ -235,12 +189,7 @@
           #}
 
           <div class="d-grid gap-2">
-            <button
-              onclick="shareToClient({{ product.id }}, '{{ url_for('static', filename='images/' + product.image) }}', '{{ product.name }}', {{ product.id + 1000 }})"
-              class="btn btn-share-client"
-            >
-              <i class="fas fa-share-alt me-1"></i> Share to Client
-            </button>
+            <!-- Share to Client button removed as per user request -->
             <button
               onclick="toggleInquiry(this)"
               data-id="{{ product.id + 1000 }}"
@@ -303,7 +252,21 @@
       .catch((err) => console.log("Tracking error:", err));
   }
 
+  let lastTrackedProduct = null;
+  let lastTrackedTime = 0;
+
   function openMacroZoom(productId, imageUrl) {
+    // Prevent duplicate tracking (debounce for 1 second)
+    const now = Date.now();
+    if (productId !== lastTrackedProduct || now - lastTrackedTime > 1000) {
+      // Track view when zoom button is clicked
+      fetch(`/track-view/${productId}`, { method: "POST" }).catch((err) =>
+        console.log("View tracking error:", err)
+      );
+      lastTrackedProduct = productId;
+      lastTrackedTime = now;
+    }
+    
     const modal = document.getElementById("zoom-modal");
     const img = document.getElementById("zoom-modal-image");
     img.src = imageUrl;
@@ -346,6 +309,10 @@
   }
 
   function trackProductView(productId, productName, productImage) {
+    fetch(`/track-view/${productId}`, { method: "POST" }).catch((err) =>
+      console.log("View tracking error:", err)
+    );
+
     // Save to localStorage for recent history
     let history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
 
@@ -371,6 +338,10 @@
     const history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
     const container = document.getElementById("recent-history-container");
     const bar = document.getElementById("recent-history-bar");
+
+    if (!container || !bar) {
+      return;
+    }
 
     if (history.length === 0) {
       bar.classList.add("d-none");
@@ -418,68 +389,25 @@
     window.open(whatsappUrl, "_blank");
   }
 
-  function switchColorVariant(productId, colorIndex, imageUrl) {
-    // Switch the product image to the selected color variant
-    const productImage = document.querySelector(
-      `.product-main-image[data-product-id="${productId}"]`
-    );
-    if (productImage) {
-      productImage.src = imageUrl;
-      // Update active swatch
-      const container = document.getElementById(`color-swatches-${productId}`);
-      if (container) {
-        container.querySelectorAll(".color-swatch").forEach((swatch, idx) => {
-          if (idx === colorIndex) {
-            swatch.classList.add("active");
-          } else {
-            swatch.classList.remove("active");
-          }
-        });
-      }
-    }
-  }
-
-  function initColorSwatches() {
-    // Initialize color swatches for products that have color variants
-    // This is a placeholder - in production, color variants would come from database
-    // For demo: Add color swatches to first few products
-    document.querySelectorAll("[data-product-id]").forEach((card, index) => {
-      if (index < 3) {
-        // Demo: Add to first 3 products
-        const productId = card.getAttribute("data-product-id");
-        const container = document.getElementById(
-          `color-swatches-${productId}`
-        );
-        if (container) {
-          container.style.display = "flex";
-          // Demo colors - in production, these would come from database
-          const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A"];
-          colors.forEach((color, idx) => {
-            const swatch = document.createElement("div");
-            swatch.className = `color-swatch ${idx === 0 ? "active" : ""}`;
-            swatch.style.backgroundColor = color;
-            swatch.onclick = () => {
-              // In production, this would load the actual color variant image
-              // For demo, we'll just switch the active state
-              switchColorVariant(parseInt(productId), idx, "");
-            };
-            container.appendChild(swatch);
-          });
-        }
-      }
-    });
-  }
-
   function loadTrendingProducts() {
     fetch("/api/trending")
       .then((response) => response.json())
       .then((data) => {
         const container = document.getElementById("trending-scroll-container");
         const section = document.getElementById("trending-section");
+        const caption = document.getElementById("trending-caption");
+
+        if (!container || !section || !caption) {
+          return;
+        }
 
         if (data.products && data.products.length > 0) {
-          section.style.display = "block";
+          section.style.display = "block"; // Changed from flex to block
           container.innerHTML = "";
+          caption.textContent =
+            data.mode === "most_inquired"
+              ? "Top 4 most-inquired products"
+              : "No inquiries yet, showing 4 newest products";
 
           data.products.forEach((product) => {
             const card = document.createElement("div");
@@ -494,10 +422,13 @@
             <div class="trending-card-body">
               <div class="trending-card-title">${product.name}</div>
               <div class="trending-card-dno">D.No: ${product.id + 1000}</div>
+              <div class="trending-card-meta">${product.view_count || 0} views</div>
             </div>
           `;
             container.appendChild(card);
           });
+        } else {
+          section.style.display = "none";
         }
       })
       .catch((err) => console.log("Trending products error:", err));
@@ -552,9 +483,6 @@
     // Update recent history
     updateRecentHistory();
 
-    // Initialize color swatches
-    initColorSwatches();
-
     // Track product views when cards come into view
     const observer = new IntersectionObserver(
       (entries) => {
@@ -581,3 +509,50 @@
 </script>
 
 {% endblock %}
+
+<script>
+// Unified Command Bar Logic (Clean & Simple)
+document.addEventListener('DOMContentLoaded', function() {
+  const categoryFilter = document.getElementById('category-filter');
+  const workTypeFilter = document.getElementById('work-type-filter');
+  const materialFilter = document.getElementById('material-filter');
+  const searchBox = document.getElementById('search-box');
+  const searchBtn = document.getElementById('search-btn');
+  const clearBtn = document.getElementById('clear-filters-btn');
+
+  // Function to apply filters
+  function applyFilters() {
+    const category = categoryFilter.value;
+    const workType = workTypeFilter.value;
+    const material = materialFilter.value;
+    const search = searchBox.value;
+    
+    // Build URL
+    const params = new URLSearchParams();
+    if (category !== 'All') params.set('category', category);
+    if (workType !== 'All') params.set('work_type', workType);
+    if (material !== 'All') params.set('material_type', material);
+    if (search) params.set('q', search);
+    
+    // Navigate to filtered page
+    window.location.href = '/?' + params.toString();
+  }
+
+  // Add change listeners to dropdowns
+  categoryFilter.addEventListener('change', applyFilters);
+  workTypeFilter.addEventListener('change', applyFilters);
+  materialFilter.addEventListener('change', applyFilters);
+  
+  // Search on Enter key or button click
+  searchBox.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') applyFilters();
+  });
+  
+  searchBtn.addEventListener('click', applyFilters);
+  
+  // Clear filters
+  clearBtn.addEventListener('click', function() {
+    window.location.href = '/';
+  });
+});
+</script>
