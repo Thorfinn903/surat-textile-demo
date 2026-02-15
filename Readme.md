@@ -1,4 +1,4 @@
-# 🧵 Surat Textile Portfolio & Digital Catalog (v2.0)
+# 🧵 Surat Textile Portfolio & Digital Catalog (v3.0)
 
 > **"Digital Dukan" for Surat's Textile Market.**  
 > A premium, high-performance web application designed for textile traders to showcase their Saree/Fabric catalogs globally with stunning modern UI.
@@ -10,7 +10,7 @@
 
 ---
 
-## ✨ Latest Updates (v2.0) - Premium UI Redesign
+## ✨ Latest Updates (v3.0) - Premium UI Redesign
 
 ### 🎨 **Modern Design System**
 - **Glassmorphism Effects**: Frosted glass UI elements with blur(30px) and enhanced saturation
