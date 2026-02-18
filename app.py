@@ -84,6 +84,19 @@ app.config['SHOP_SETTINGS'] = load_settings()
 
 db = SQLAlchemy(app)
 
+# --- PWA ROUTES ---
+@app.route('/sw.js')
+def service_worker():
+    from flask import send_from_directory
+    response = send_from_directory(app.static_folder, 'sw.js')
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
+@app.route('/manifest.json')
+def manifest():
+    from flask import send_from_directory
+    return send_from_directory(app.static_folder, 'manifest.json')
+
 # --- LOGIN MANAGER ---
 login_manager = LoginManager()
 login_manager.init_app(app)

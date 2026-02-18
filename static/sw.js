@@ -1,8 +1,8 @@
-const CACHE_NAME = 'antigravity-v6.2';
+const CACHE_NAME = 'antigravity-v8.0';
 const ASSETS_TO_CACHE = [
   '/',
   '/static/css/style.css',
-  '/static/manifest.json',
+  '/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png'
 ];
