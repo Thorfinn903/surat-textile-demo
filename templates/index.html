@@ -1,239 +1,385 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} 
+{% block content %}
 
-<header class="hero-section">
-  <div class="container text-white">
-    <h1
-      class="display-3 fw-bold mb-3"
-      style="font-family: 'Playfair Display', serif"
-    >
-      Leading Textile Hub of India
-    </h1>
-    <p class="lead mb-5">
-      Premium Manufacturers & Exporters of Luxury Saree Fabrics.
-    </p>
-
-    <div class="d-flex justify-content-center gap-3">
-      <a
-        href="#collection"
-        class="btn btn-warning btn-lg px-5 rounded-pill fw-bold shadow"
-        >View Designs</a
-      >
-      {# <a href="#" class="btn btn-outline-light btn-lg px-4 rounded-pill"
-        >Download Catalog</a
-      > #}
-    </div>
-  </div>
-</header>
-
-
-<div class="container">
-  <div class="row">
-<!-- ✨ UNIFIED COMMAND BAR (Clean & Simple) ✨ -->
-<div class="container position-relative" style="z-index: 100; margin-top: -35px; margin-bottom: 40px;">
-  <div class="unified-search-bar bg-white shadow-lg rounded-pill d-flex align-items-center p-2">
-    
-    <!-- Left: Search Input -->
-    <div class="d-flex align-items-center flex-grow-1 ps-3">
-      <i class="fas fa-search text-muted me-2"></i>
-      <input type="text" id="search-box" class="form-control border-0 shadow-none" 
-             placeholder="Search Design No, Fabric..." 
-             value="{{ request.args.get('q', '') }}"
-             style="font-size: 15px;">
-    </div>
-
-    <!-- Vertical Divider -->
-    <div class="v-divider d-none d-md-block mx-3" style="width:1px; height:30px; background:#eee;"></div>
-
-    <!-- Middle: Filter Dropdowns (Desktop Only) -->
-    <div class="d-none d-md-flex align-items-center gap-3">
-      <select id="category-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
-        <option value="All" {% if request.args.get('category', 'All') == 'All' %}selected{% endif %}>Category</option>
-        {% for cat in product_category_options %}
-        <option value="{{ cat }}" {% if request.args.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
-        {% endfor %}
-      </select>
-      
-      <select id="work-type-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
-        <option value="All" {% if request.args.get('work_type', 'All') == 'All' %}selected{% endif %}>Work Type</option>
-        <option value="Zari" {% if request.args.get('work_type') == 'Zari' %}selected{% endif %}>Zari</option>
-        <option value="Embroidery" {% if request.args.get('work_type') == 'Embroidery' %}selected{% endif %}>Embroidery</option>
-        <option value="Print" {% if request.args.get('work_type') == 'Print' %}selected{% endif %}>Print</option>
-        <option value="Handwork" {% if request.args.get('work_type') == 'Handwork' %}selected{% endif %}>Handwork</option>
-      </select>
-      
-      <select id="material-filter" class="form-select border-0 fw-bold" style="width:auto; cursor:pointer; font-family: 'Playfair Display', serif;">
-        <option value="All" {% if request.args.get('material_type', 'All') == 'All' %}selected{% endif %}>Fabric</option>
-        {% for mat in material_type_options %}
-        <option value="{{ mat }}" {% if request.args.get('material_type') == mat %}selected{% endif %}>{{ mat }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Right: Search Button -->
-    <button id="search-btn" class="btn btn-gold rounded-pill px-4 py-2 ms-2 fw-bold text-white">
-      SEARCH
-    </button>
-  </div>
+<style>
+  /* Homepage Specific Styles */
+  .cat-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 105px; /* Reduced ~12% for sleekness */
+    background: var(--bg-surface);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white; /* Always white text on images */
+    font-weight: 700;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--shadow-card);
+    letter-spacing: -0.5px;
+    background-size: cover;
+    background-position: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    border: 1px solid var(--border-subtle); /* Balanced border */
+  }
+  .cat-tile:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-elevated);
+    filter: brightness(1.1);
+    z-index: 10;
+    border-color: var(--accent);
+  }
   
-  <!-- Clear Filters Link -->
-  <div class="text-center mt-3">
-    <button id="clear-filters-btn" class="btn btn-link text-decoration-underline" 
-            style="color: var(--gold); font-size: 13px; font-weight: 600;">
-      <i class="fas fa-redo-alt me-1" style="font-size: 11px;"></i>Clear All Filters
-    </button>
+  /* Ghost Card CTA - Elegant & Balanced */
+  .cat-tile.catalog-cta {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent) !important;
+    text-shadow: none;
+    box-shadow: none;
+  }
+  .cat-tile.catalog-cta:hover {
+    background: var(--accent);
+    color: var(--bg-body) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(253, 203, 110, 0.3);
+  }
+  
+  .collection-card {
+    display: block;
+    height: 220px; /* Increased to 220px for Banner look */
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: white !important;
+    box-shadow: var(--shadow-card);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .collection-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  }
+
+  /* FORCE Text Color for Light Mode Compatibility */
+  .collection-card h5,
+  .collection-card p,
+  .collection-card span {
+      color: white !important;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+
+  .collection-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 25px;
+    transition: background 0.3s ease;
+  }
+  
+  .collection-card:hover .collection-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+  }
+  
+  .collection-card:hover .fa-arrow-right {
+    transform: translateX(5px);
+    transition: transform 0.3s ease;
+  }
+
+  /* Premium Black Action Button */
+  .btn-action-black {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 14px 45px !important; /* Sleek sizing */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+  }
+  .btn-action-black:hover {
+    background-color: #000000 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  /* Floating WhatsApp Button */
+  .floating-whatsapp {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+  }
+  .floating-whatsapp:hover {
+    transform: scale(1.1);
+    background: #128C7E;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  @media (max-width: 768px) {
+    .floating-whatsapp {
+        bottom: 90px; /* Avoid overlap with mobile bottom nav */
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+    }
+  }
+</style>
+
+<!-- ============================================
+     HERO SECTION
+     ============================================ -->
+<div class="hero-section" style="padding-bottom: 40px;">
+  <div class="container">
+    <h1 class="display-4 fw-bold mb-3" style="font-family: 'Inter', sans-serif;">{{ shop_settings.shop_name }}</h1>
+    <p class="lead mb-4 mx-auto" style="max-width: 600px; opacity: 0.9; letter-spacing: 0.3px;">
+      Premium B2B Textile Market. Direct Manufacturer to Retailer.
+    </p>
+    
+    <!-- Glassmorphic Search Bar -->
+    <div class="hero-search-glass mx-auto" style="max-width: 600px;">
+      <i class="fas fa-search text-white opacity-50 ps-3"></i>
+      <input type="text" id="home-search-box" class="hero-search-input" 
+             placeholder="Search 120+ Premium Designs...">
+      <button class="hero-search-btn" 
+              onclick="window.location.href='/catalog?q='+document.getElementById('home-search-box').value">
+         Search
+      </button>
+    </div>
+    
+    <!-- Search Suggestion -->
+    <p class="small mt-3 text-white opacity-75 fw-500" style="letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+      Search by Design No, Fabric, or Color
+    </p>
   </div>
 </div>
 
-
-
-<div class="container trending-section" id="trending-section" style="display: none">
-  <div class="row justify-content-center">
-    <div class="col-12 text-center">
-      <div class="trending-track">
-        <h3
-          class="fw-bold mb-4 text-center"
-          style="
-            font-family: 'Playfair Display', serif;
-            color: var(--dark);
-            font-size: 2.2rem;
-          "
-        >
-          <span style="color: #c5a059">Trending Designs</span>
-        </h3>
-        <p class="text-center text-muted small mb-3" id="trending-caption"></p>
-        <div class="d-flex justify-content-center" style="width: 100%;">
-          <div class="trending-scroll-container" id="trending-scroll-container"></div>
-        </div>
-      </div>
+<!-- ============================================
+     CATEGORY TILES (Discovery)
+     ============================================ -->
+<div class="container py-4">
+  <div class="row g-3">
+    <!-- Sarees -->
+    <div class="col-6 col-md-3">
+       <a href="/catalog?category=Saree" class="cat-tile" 
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Saree.jpg') }}');">
+         <span>Sarees</span>
+       </a>
+    </div>
+    <!-- Kurtis -->
+    <div class="col-6 col-md-3">
+       <a href="/catalog?category=Kurti" class="cat-tile"
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Kurti.jpg') }}');">
+         <span>Kurtis</span>
+       </a>
+    </div>
+    <!-- Dress Materials -->
+    <div class="col-6 col-md-3">
+      <a href="/catalog?category=Dress Material" class="cat-tile"
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Dress.jpg') }}');">
+        <span>Dress Material</span>
+      </a>
+    </div>
+    <!-- View All -->
+    <div class="col-6 col-md-3">
+      <a href="/catalog" class="cat-tile catalog-cta">
+        <span>View Full Catalog</span>
+      </a>
     </div>
   </div>
 </div>
 
-<div id="collection" class="container py-5 mt-4">
-  <h2
-    class="fw-bold mb-5"
-    style="
-      font-family: 'Playfair Display', serif;
-      color: var(--dark);
-      font-size: 2.5rem;
-    "
-  >
-    Latest Volumes
-  </h2>
+<!-- ============================================
+     FEATURED COLLECTIONS
+     ============================================ -->
+<div class="container pb-5">
+  <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">Featured Collections</h4>
+  <div class="row g-4">
+    <!-- Festive Collection -->
+    <div class="col-md-4">
+      <a href="/catalog?work_type=Embroidery" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/FestiveCollection.webp') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Festive Collection</h5>
+            <p class="small opacity-75 mb-2">Rich Zari Work • 24 Designs</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Premium Silk -->
+    <div class="col-md-4">
+      <a href="/catalog?material_type=Silk" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/PremiumSilk.avif') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Premium Silk</h5>
+            <p class="small opacity-75 mb-2">Pure Banarasi & Soft Silk • 18 Designs</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Trending Now -->
+    <div class="col-md-4">
+      <a href="/catalog?sort=trending" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/TrendingNow.webp') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Trending Now</h5>
+            <p class="small opacity-75 mb-2">Most Loved Styles • 30+ New</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     NEW ARRIVALS (Preview Only)
+     ============================================ -->
+<div class="container pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0" style="letter-spacing: -0.5px;">New Arrivals</h4>
+    <a href="/catalog?sort=newest" class="text-decoration-none fw-600" style="font-size: 0.9rem; color: var(--accent);">
+      View All <i class="fas fa-arrow-right ms-1"></i>
+    </a>
+  </div>
 
   {% if products %}
-  <div class="row row-cols-1 row-cols-md-4 g-4 catalog-grid">
-    {% for product in products %}
-    <div class="col d-flex">
-      <div
-        class="card b2b-showroom-card h-100"
-        data-product-id="{{ product.id }}"
-        data-product-name="{{ product.name }}"
-        data-product-image="{{ product.image }}"
-      >
-        <div class="img-overlay-container">
-          <img
-            src="{{ url_for('static', filename='images/' + product.image) }}"
-            class="showroom-img product-main-image"
-            alt="{{ product.name }}"
-            loading="lazy"
-            data-product-id="{{ product.id }}"
-          />
-
-          <!-- Zoom Icon -->
-          <div
-            class="zoom-icon-overlay"
-            onclick="openMacroZoom({{ product.id }}, '{{ url_for('static', filename='images/' + product.image) }}')"
-          >
-            <i class="fas fa-search-plus"></i>
-          </div>
-
-          <span
-            class="badge-stock-luxury {% if product.stock == 'In Stock' %}ready{% else %}booking{% endif %}"
-          >
-            {{ product.stock }}
-          </span>
-          <div class="d-no-tag-luxury">D.No: {{ product.id + 1000 }}</div>
-
-          <!-- Live Inquiry Counter -->
-          <div class="live-inquiry-badge" id="inquiry-badge-{{ product.id }}">
-            <i class="fas fa-fire"></i>
-            <span class="inquiry-count-text">Loading...</span>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <h5 class="product-title-luxury mb-1">{{ product.name }}</h5>
-          <p class="text-muted small mb-3 text-uppercase">
-            {{ product.product_category or product.category }}{% if product.work_type %} | {{ product.work_type }}{% endif %}
-          </p>
-
-          <!-- Stock Progress Bar (if stock is low) -->
-          {# 
-          <div
-            class="stock-progress-container"
-            id="stock-progress-{{ product.id }}"
-            style="display: none"
-          >
-            <div class="stock-progress-bar">
-              <div
-                class="stock-progress-fill"
-                id="stock-fill-{{ product.id }}"
-              ></div>
-            </div>
-            <div
-              class="stock-progress-text"
-              id="stock-text-{{ product.id }}"
-            ></div>
-          </div>
-          #}
-
-          <div class="d-grid gap-2">
-            <!-- Share to Client button removed as per user request -->
-            <button
-              onclick="toggleInquiry(this)"
-              data-id="{{ product.id + 1000 }}"
-              data-name="{{ product.name }}"
-              class="btn btn-outline-dark btn-sm mb-2"
-              style="
-                border-radius: 8px;
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 11px;
-                letter-spacing: 0.5px;
-                padding: 10px;
-              "
-            >
-              <i class="fas fa-plus me-1"></i> ADD TO LIST
-            </button>
-            <a
-              href="https://wa.me/{{ whatsapp_no }}?text=Inquiry for D.No: {{ product.id + 1000 }} - {{ product.name }}"
-              class="btn btn-whatsapp-premium"
-              onclick="trackInquiry({{ product.id }}); trackProductView({{ product.id }}, '{{ product.name }}', '{{ product.image }}');"
-            >
-              WHATSAPP RATE
-            </a>
-          </div>
-        </div>
+  <div class="feed-grid">
+    <!-- Show ONLY first 4 items -->
+    {% for product in products[:4] %}
+    <div class="feed-card"
+         data-product-id="{{ product.id }}"
+         data-product-name="{{ product.name }}"
+         data-product-image="{{ product.image }}"
+         onclick="openMacroZoom({{ product.id }}, '{{ url_for('static', filename='images/' + product.image) }}')">
+      <div class="feed-card-img-wrap">
+        <img
+          src="{{ url_for('static', filename='images/' + product.image) }}"
+          class="feed-card-img"
+          alt="{{ product.name }}"
+          loading="lazy"
+        />
       </div>
+        <div class="feed-card-info">
+          <div class="feed-card-dno">D.No {{ product.id + 1000 }}</div>
+          <div class="feed-card-name">{{ product.name }}</div>
+          <div class="mt-2 text-center">
+            <button class="btn btn-sm btn-outline-dark w-100 rounded-pill btn-add-cart"
+                onclick="event.stopPropagation(); toggleCart(this)"
+                data-id="{{ product.id + 1000 }}"
+                data-dno="{{ product.id + 1000 }}"
+                data-name="{{ product.name }}"
+                data-image="{{ url_for('static', filename='images/' + product.image) }}">
+              <i class="fas fa-plus me-1"></i> Add to Bag
+            </button>
+          </div>
+        </div>
     </div>
     {% endfor %}
   </div>
   {% else %}
-  <div class="text-center py-5">
-    <p class="text-muted">
-      No products found. Try a different search or category.
-    </p>
+  <div class="text-center py-4">
+    <p class="text-secondary">Catalog is updating...</p>
   </div>
   {% endif %}
+  
+  <div class="text-center mt-5">
+    <a href="/catalog" class="btn rounded-pill fw-bold btn-action-black">
+      View Full Catalog <span class="opacity-50 fw-normal ms-1">({{ products|length }}+ items)</span>
+    </a>
+  </div>
 </div>
 
-<!-- Macro Zoom Modal -->
- 
+
+<!-- ============================================
+     BUSINESS CTA & TRUST
+     ============================================ -->
+<div class="py-5" style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle);">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-md-6">
+        <h2 class="fw-bold mb-3 display-6" style="letter-spacing: -1px;">Wholesale Partner You Can Trust</h2>
+        <p class="text-secondary mb-4" style="line-height: 1.7;">
+          Since 2005, Digital Dukan has been supplying premium textiles to over 2,500+ retailers across India. 
+          We guarantee direct factory rates and 24-hour dispatch.
+        </p>
+        <div class="d-flex text-secondary gap-4 mb-4">
+           <div><i class="fas fa-check-circle me-2 text-success"></i>Direct Factory Price</div>
+           <div><i class="fas fa-check-circle me-2 text-success"></i>GST Invoice</div>
+        </div>
+        <a href="/contact" class="btn btn-outline-dark rounded-pill px-4">
+          Contact Sales
+        </a>
+      </div>
+      <div class="col-md-6">
+        <div class="p-4 rounded-4" style="background: var(--bg-subtle); border: 1px dashed var(--border-focus);">
+          <div class="d-flex gap-3 mb-3">
+             <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width:50px; height:50px;">
+               <i class="fas fa-shipping-fast text-primary"></i>
+             </div>
+             <div>
+               <h6 class="fw-bold mb-1">Bulk Orders</h6>
+               <p class="small text-secondary m-0">Special rates for orders above ₹50,000</p>
+             </div>
+          </div>
+          <div class="d-flex gap-3">
+             <div class="rounded-circle bg-white d-flex align-items-center justify-content-center shadow-sm" style="width:50px; height:50px;">
+               <i class="fab fa-whatsapp text-success" style="font-size: 24px;"></i>
+             </div>
+             <div>
+               <h6 class="fw-bold mb-1">Instant Inquiry</h6>
+               <p class="small text-secondary m-0">Send design screenshots directly to us</p>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Zoom Modal -->
 <div class="zoom-modal" id="zoom-modal" onclick="closeMacroZoom(event)">
   <div class="zoom-modal-content" onclick="event.stopPropagation()">
     <div class="zoom-modal-close" onclick="closeMacroZoom(event)">&times;</div>
     <img id="zoom-modal-image" src="" alt="Zoom View" />
+    <div class="d-flex gap-2 mt-3 px-3 pb-3" id="zoom-modal-actions"></div>
   </div>
 </div>
 
@@ -241,37 +387,44 @@
   function trackInquiry(productId) {
     fetch("/track-inquiry/" + productId, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then(() => {
-        // Update inquiry count after tracking
-        getTodayInquiryCount(productId);
-      })
-      .catch((err) => console.log("Tracking error:", err));
+      headers: { "Content-Type": "application/json" },
+    }).catch((err) => console.log("Tracking error:", err));
   }
 
   let lastTrackedProduct = null;
   let lastTrackedTime = 0;
 
   function openMacroZoom(productId, imageUrl) {
-    // Prevent duplicate tracking (debounce for 1 second)
     const now = Date.now();
     if (productId !== lastTrackedProduct || now - lastTrackedTime > 1000) {
-      // Track view when zoom button is clicked
       fetch(`/track-view/${productId}`, { method: "POST" }).catch((err) =>
         console.log("View tracking error:", err)
       );
       lastTrackedProduct = productId;
       lastTrackedTime = now;
     }
-    
+
     const modal = document.getElementById("zoom-modal");
     const img = document.getElementById("zoom-modal-image");
     img.src = imageUrl;
     modal.classList.add("active");
     document.body.style.overflow = "hidden";
+
+    // Populate quick actions
+    const actionsDiv = document.getElementById("zoom-modal-actions");
+    const designNo = productId + 1000;
+    
+    actionsDiv.innerHTML = `
+        <div class="mt-2 text-center w-100">
+          <button class="btn btn-sm btn-outline-dark w-100 rounded-pill btn-add-cart"
+              onclick="event.stopPropagation(); toggleCart(this)"
+              data-id="${productId + 1000}"
+              data-dno="${productId + 1000}"
+              data-name="${document.querySelector(`[data-product-id="${productId}"]`).getAttribute('data-product-name')}"
+              data-image="${imageUrl}">
+            <i class="fas fa-plus me-1"></i> Add to Bag
+          </button>
+        </div>`;
   }
 
   function closeMacroZoom(event) {
@@ -281,219 +434,27 @@
     document.body.style.overflow = "";
   }
 
-  // Close modal on Escape key
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       closeMacroZoom({ stopPropagation: () => {} });
     }
   });
 
-  function getTodayInquiryCount(productId) {
-    fetch(`/api/inquiry-count/${productId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const badge = document.getElementById(`inquiry-badge-${productId}`);
-        if (badge) {
-          const countText = badge.querySelector(".inquiry-count-text");
-          if (countText) {
-            if (data.count > 0) {
-              countText.textContent = `${data.count} inquired today`;
-              badge.style.display = "flex";
-            } else {
-              badge.style.display = "none";
-            }
-          }
-        }
-      })
-      .catch((err) => console.log("Inquiry count error:", err));
-  }
-
   function trackProductView(productId, productName, productImage) {
     fetch(`/track-view/${productId}`, { method: "POST" }).catch((err) =>
       console.log("View tracking error:", err)
     );
-
-    // Save to localStorage for recent history
-    let history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
-
-    // Remove if already exists
-    history = history.filter((item) => item.id !== productId);
-
-    // Add to beginning
-    history.unshift({
-      id: productId,
-      name: productName,
-      image: productImage,
-      designNo: productId + 1000,
-    });
-
-    // Keep only last 5
-    history = history.slice(0, 5);
-
-    localStorage.setItem("recentHistory", JSON.stringify(history));
-    updateRecentHistory();
-  }
-
-  function updateRecentHistory() {
-    const history = JSON.parse(localStorage.getItem("recentHistory") || "[]");
-    const container = document.getElementById("recent-history-container");
-    const bar = document.getElementById("recent-history-bar");
-
-    if (!container || !bar) {
-      return;
-    }
-
-    if (history.length === 0) {
-      bar.classList.add("d-none");
-      return;
-    }
-
-    bar.classList.remove("d-none");
-    container.innerHTML = "";
-
-    history.forEach((item) => {
-      const div = document.createElement("div");
-      div.className = "recent-history-item";
-      div.onclick = () => {
-        // Scroll to product or show details
-        const productCard = document.querySelector(
-          `[data-product-id="${item.id}"]`
-        );
-        if (productCard) {
-          productCard.scrollIntoView({ behavior: "smooth", block: "center" });
-          productCard.style.boxShadow = "0 0 0 4px rgba(197, 160, 89, 0.5)";
-          setTimeout(() => {
-            productCard.style.boxShadow = "";
-          }, 2000);
-        }
-      };
-      div.innerHTML = `<img src="{{ url_for('static', filename='images/') }}${item.image}" alt="${item.name}">`;
-      container.appendChild(div);
-    });
-  }
-
-  function shareToClient(productId, imageUrl, productName, designNo) {
-    // Create a temporary link to download the image
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = `D.No-${designNo}-${productName.replace(/\s+/g, "-")}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Open WhatsApp with message (no price/details)
-    const message = `Check this design: D.No ${designNo} - ${productName}`;
-    const whatsappUrl = `https://wa.me/{{ whatsapp_no }}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
-  }
-
-  function loadTrendingProducts() {
-    fetch("/api/trending")
-      .then((response) => response.json())
-      .then((data) => {
-        const container = document.getElementById("trending-scroll-container");
-        const section = document.getElementById("trending-section");
-        const caption = document.getElementById("trending-caption");
-
-        if (!container || !section || !caption) {
-          return;
-        }
-
-        if (data.products && data.products.length > 0) {
-          section.style.display = "block"; // Changed from flex to block
-          container.innerHTML = "";
-          caption.textContent =
-            data.mode === "most_inquired"
-              ? "Top 4 most-inquired products"
-              : "No inquiries yet, showing 4 newest products";
-
-          data.products.forEach((product) => {
-            const card = document.createElement("div");
-            card.className = "trending-card";
-            card.onclick = () => {
-              window.location.href = `/?q=${product.id + 1000}`;
-            };
-            card.innerHTML = `
-            <img src="{{ url_for('static', filename='images/') }}${
-              product.image
-            }" class="trending-card-img" alt="${product.name}">
-            <div class="trending-card-body">
-              <div class="trending-card-title">${product.name}</div>
-              <div class="trending-card-dno">D.No: ${product.id + 1000}</div>
-              <div class="trending-card-meta">${product.view_count || 0} views</div>
-            </div>
-          `;
-            container.appendChild(card);
-          });
-        } else {
-          section.style.display = "none";
-        }
-      })
-      .catch((err) => console.log("Trending products error:", err));
-  }
-
-  function updateStockBar(productId, stockStatus) {
-    // For demo: simulate low stock for some products
-    // In production, this would come from database stock_quantity field
-    const stockProgress = document.getElementById(
-      `stock-progress-${productId}`
-    );
-    const stockFill = document.getElementById(`stock-fill-${productId}`);
-    const stockText = document.getElementById(`stock-text-${productId}`);
-
-    if (stockProgress && stockStatus === "In Stock") {
-      // Simulate: Show low stock for products with high inquiry count or random selection
-      // This is a placeholder - replace with actual stock quantity from database
-      const shouldShowLowStock = Math.random() < 0.2; // 20% chance for demo
-
-      if (shouldShowLowStock) {
-        const stockLeft = Math.floor(Math.random() * 8) + 2; // 2-9 sets left
-        const percentage = (stockLeft / 10) * 100;
-
-        stockProgress.style.display = "block";
-        stockFill.style.width = `${percentage}%`;
-        stockText.textContent = `Only ${stockLeft} sets left in Factory`;
-      } else {
-        stockProgress.style.display = "none";
-      }
-    } else {
-      if (stockProgress) stockProgress.style.display = "none";
-    }
   }
 
   // Initialize on page load
   document.addEventListener("DOMContentLoaded", function () {
-    // Load inquiry counts for all products
-    document.querySelectorAll("[data-product-id]").forEach((card) => {
-      const productId = card.getAttribute("data-product-id");
-      getTodayInquiryCount(parseInt(productId));
-
-      // Update stock bar
-      const stockStatus =
-        card.querySelector(".badge-stock-luxury")?.textContent.trim() ||
-        "In Stock";
-      updateStockBar(parseInt(productId), stockStatus);
-    });
-
-    // Load trending products
-    loadTrendingProducts();
-
-    // Update recent history
-    updateRecentHistory();
-
-    // Track product views when cards come into view
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const productId = parseInt(
-              entry.target.getAttribute("data-product-id")
-            );
+            const productId = parseInt(entry.target.getAttribute("data-product-id"));
             const productName = entry.target.getAttribute("data-product-name");
-            const productImage =
-              entry.target.getAttribute("data-product-image");
+            const productImage = entry.target.getAttribute("data-product-image");
             trackProductView(productId, productName, productImage);
             observer.unobserve(entry.target);
           }
@@ -509,50 +470,3 @@
 </script>
 
 {% endblock %}
-
-<script>
-// Unified Command Bar Logic (Clean & Simple)
-document.addEventListener('DOMContentLoaded', function() {
-  const categoryFilter = document.getElementById('category-filter');
-  const workTypeFilter = document.getElementById('work-type-filter');
-  const materialFilter = document.getElementById('material-filter');
-  const searchBox = document.getElementById('search-box');
-  const searchBtn = document.getElementById('search-btn');
-  const clearBtn = document.getElementById('clear-filters-btn');
-
-  // Function to apply filters
-  function applyFilters() {
-    const category = categoryFilter.value;
-    const workType = workTypeFilter.value;
-    const material = materialFilter.value;
-    const search = searchBox.value;
-    
-    // Build URL
-    const params = new URLSearchParams();
-    if (category !== 'All') params.set('category', category);
-    if (workType !== 'All') params.set('work_type', workType);
-    if (material !== 'All') params.set('material_type', material);
-    if (search) params.set('q', search);
-    
-    // Navigate to filtered page
-    window.location.href = '/?' + params.toString();
-  }
-
-  // Add change listeners to dropdowns
-  categoryFilter.addEventListener('change', applyFilters);
-  workTypeFilter.addEventListener('change', applyFilters);
-  materialFilter.addEventListener('change', applyFilters);
-  
-  // Search on Enter key or button click
-  searchBox.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') applyFilters();
-  });
-  
-  searchBtn.addEventListener('click', applyFilters);
-  
-  // Clear filters
-  clearBtn.addEventListener('click', function() {
-    window.location.href = '/';
-  });
-});
-</script>

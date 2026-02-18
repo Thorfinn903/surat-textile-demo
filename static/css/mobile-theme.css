@@ -1,0 +1,32 @@
+/* ============================================
+   MOBILE OFFCANVAS (Theme Adaptive)
+   ============================================ */
+.offcanvas {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+}
+
+.offcanvas-header .btn-close {
+    filter: invert(var(--invert-icon)); /* defined in :root */
+}
+
+/* Adapt List Group Items */
+.offcanvas .list-group-item {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-light) !important;
+}
+
+.offcanvas .list-group-item i {
+    color: var(--text-secondary) !important;
+}
+
+.offcanvas .list-group-item-action:hover,
+.offcanvas .list-group-item-action:focus {
+    background-color: var(--bg-subtle) !important;
+}
+
+.offcanvas .bg-light {
+    background-color: var(--bg-subtle) !important;
+    border-top: 1px solid var(--border-light) !important;
+}
