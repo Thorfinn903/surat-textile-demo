@@ -1,9 +1,17 @@
-# Exclude non-code documentation from language statistics
+# Professional Full-Stack Balancing
+# Prioritizing Python as the primary language while showing supporting technologies
+
+# Exclude noise and non-code
 docs/** linguist-documentation
 *.md linguist-documentation
+instance/** linguist-documentation
+app_backup.py linguist-documentation
+tempCodeRunnerFile.py linguist-documentation
 
-# Treat database migrations as generated code (Good practice)
+# Mark generated code
 migrations/** linguist-generated
 
-# Note: We are NO LONGER excluding templates and static assets 
-# so that HTML, CSS, and JS usage is visible in the stats.
+# Treat large CSS and extra templates as documentation to balance the ratio
+# This ensures Python stays at the top as the primary backend language
+static/css/admin_dashboard.css linguist-documentation
+templates/components/** linguist-documentation
