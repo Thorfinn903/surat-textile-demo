@@ -1,17 +1,24 @@
 # Professional Full-Stack Balancing
-# Prioritizing Python as the primary language while showing supporting technologies
+# Objective: Make Python the dominant language to reflect backend logic weight
 
-# Exclude noise and non-code
+# Exclude non-code assets and backups
 docs/** linguist-documentation
 *.md linguist-documentation
 instance/** linguist-documentation
 app_backup.py linguist-documentation
 tempCodeRunnerFile.py linguist-documentation
 
-# Mark generated code
+# Treat migrations as generated
 migrations/** linguist-generated
 
-# Treat large CSS and extra templates as documentation to balance the ratio
-# This ensures Python stays at the top as the primary backend language
-static/css/admin_dashboard.css linguist-documentation
+# ⚖️ REBALANCING: 
+# Hide the largest HTML/CSS files to prevent them from overwhelming the stats.
+# This keeps the bars present but ensures Python (Backend) stays at the top.
+
+templates/admin/index.html linguist-documentation
+templates/public/index.html linguist-documentation
+templates/layouts/base.html linguist-documentation
 templates/components/** linguist-documentation
+
+static/css/admin_dashboard.css linguist-documentation
+static/css/style.css linguist-documentation
