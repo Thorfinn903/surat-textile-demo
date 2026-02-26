@@ -1,9 +1,9 @@
-# Exclude documentation and static assets from language statistics
-templates/** linguist-documentation
-static/** linguist-documentation
+# Exclude non-code documentation from language statistics
 docs/** linguist-documentation
-Readme.md linguist-documentation
-ARCHITECTURE.md linguist-documentation
+*.md linguist-documentation
 
-# Treat migrations as generated code
+# Treat database migrations as generated code (Good practice)
 migrations/** linguist-generated
+
+# Note: We are NO LONGER excluding templates and static assets 
+# so that HTML, CSS, and JS usage is visible in the stats.
