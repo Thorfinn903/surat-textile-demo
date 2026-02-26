@@ -1,0 +1,9 @@
+# Exclude documentation and static assets from language statistics
+templates/** linguist-documentation
+static/** linguist-documentation
+docs/** linguist-documentation
+Readme.md linguist-documentation
+ARCHITECTURE.md linguist-documentation
+
+# Treat migrations as generated code
+migrations/** linguist-generated
