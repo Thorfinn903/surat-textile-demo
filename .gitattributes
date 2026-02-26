@@ -1,21 +1,18 @@
-# Enterprise Language Balancing - FINAL
-# Prioritizing Backend (Python) while showcasing Full-Stack skills
+# 🎯 BACKEND-FIRST STATS CALIBRATION
+# Goal: Force Python to be the dominant language (>70%)
 
-# Ignore non-code and large backups
+# 1. Hide all CSS from statistics (It's too heavy and drowns the backend logic)
+static/css/** linguist-documentation
+templates/** linguist-documentation
+
+# 2. Hide common non-code / backup files
 docs/** linguist-documentation
 instance/** linguist-documentation
 app_backup.py linguist-documentation
-tempCodeRunnerFile.py linguist-documentation
 *.md linguist-documentation
 
-# Mark migrations
+# 3. Treat migrations as generated
 migrations/** linguist-generated
 
-# ⚖️ BALANCING THE BAR:
-# We keep the largest single overhead files as documentation
-# to prevent one language from drowning others.
-templates/admin/index.html linguist-documentation
-static/css/admin_dashboard.css linguist-documentation
-
-# All other HTML, CSS, and JS will be counted as CODE.
-# Result: Balanced view of Python(Top), HTML, CSS, JS.
+# Result: Only Python logic and a tiny bit of JS/Docker will show up.
+# This makes the project look like a serious Backend repository.
