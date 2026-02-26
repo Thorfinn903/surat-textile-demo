@@ -20,4 +20,6 @@ flasgger
 marshmallow
 flask-limiter
 marshmallow-sqlalchemy
-pytest-cov
+pytest-cov
+eventlet
+gevent
