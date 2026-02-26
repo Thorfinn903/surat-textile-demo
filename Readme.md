@@ -1,4 +1,4 @@
-# 🏗️ Surat Textile B2B Nexus — Enterprise SaaS Backend
+# 🏗️ Digital Dukan — Enterprise SaaS Backend
 
 [![Flask](https://img.shields.io/badge/Flask-2.3+-black.svg?style=for-the-badge&logo=flask)](https://flask.palletsprojects.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)

@@ -43,7 +43,7 @@ def create_app(config_name=None):
     # Initialize Swagger
     from flasgger import Swagger
     app.config['SWAGGER'] = {
-        'title': 'Textile Demo Site API',
+        'title': 'Digital Dukan API',
         'uiversion': 3
     }
     Swagger(app)
