@@ -2,23 +2,38 @@
 
 This document tracks the complete evolution of the **Digital Dukan** project, detailing every major version from inception to the current high-performance B2B textile platform.
 
-## **v7.5: The "Antigravity" Restoration** (Current Stable)
+## **v10.0: The "Enterprise Hardening" Release** (Current Stable)
 **Status:** *Authorized Release*
-> **Focus:** Stability, Search Intelligence, & Market Analytics.
+> **Focus:** Security, Reliability, & Developer Operations (DevOps).
 
-*   **Architectural Reset:** Reverted the complex `src/` modularization to a robust **Flat Directory Structure** for maximum reliability and ease of development.
+*   **Elite Testing Suite:** Established a comprehensive **Pytest** framework with session-scoped fixtures and in-memory database isolation for ultra-fast unit/integration tests.
+*   **Interactive Documentation:** Integrated **Swagger/OpenAPI** via Flasgger, providing a lived, interactive sandbox for third-party developers to explore and test the API.
+*   **Automated CI/CD Pipeline:** Deployed **GitHub Actions** workflows that automatically trigger test suites and coverage reports (Codecov) on every push/pull request.
+*   **Advanced Schema Validation:** Switched to **Marshmallow** for robust, schema-based data validation and serialization, eliminating malformed data entry at the API layer.
+*   **Infrastructure Rate Limiting:** Implemented **Flask-Limiter** with Redis support to protect the backend from brute-force attacks and bot abuse.
+
+## **v9.0: The "Production Architecture" Scaffold**
+**Status:** *Released*
+
+## **v8.0: The Modular Refactor & RBAC**
+**Status:** *Released*
+> **Focus:** Namespace Isolation & Backend Hardening.
+
+*   **Role-Based Access Control (RBAC):** Implemented custom decorators (`@roles_required`) to secure the Admin Dashboard with granular Sales vs Admin permissions.
+*   **Smart Analytics Scoring:** Developed a weighted popularity algorithm `(Views * 1 + Clicks * 5)` to drive more accurate "Trending" product discovery.
+*   **Centralized Services:** Moved core database interactions to dedicated `services.py` modules, ensuring DRY (Don't Repeat Yourself) principles across the app.
+*   **Alembic Migrations:** Integrated **Flask-Migrate** to handle database schema changes safely via version-controlled migration files.
+*   **API v1 Foundation:** Launched a versioned REST API (`/api/v1/`) with standardized JSON response wrappers and JWT-ready authentication hooks.
+
+## **v7.5: The "Hybrid Reset" & Search Engine 2.0**
+**Status:** *Released*
+> **Focus:** Search Intelligence, Market Analytics, & Structural Optimization.
+
+*   **Architectural Hybrid:** Successfully merged the learnings from the v7.4 modular attempt with a more stable project layout, optimizing import paths and resolving `TemplateNotFound` errors.
 *   **Search Engine 2.0:** Introduced powerful multi-attribute search (Design No, Color, Fabric, Work) using SQLAlchemy fuzzy matching with `OR` logic.
-*   **Market Analytics:** Added "Relative Percentage" graphs in the Admin Dashboard to visualize real-time inventory performance without needing complex historical data.
+*   **Market Analytics:** Added "Relative Percentage" graphs in the Admin Dashboard to visualize real-time inventory performance.
 *   **Inventory Logic:** Fixed "Out of Stock" sorting and global counter independence to provide accurate business insights.
 *   **Database Upgrade:** Added `color` column to the product schema to support enhanced filtering.
-
-## **v7.4: The Great Refactor Attempt** (Experimental)
-**Status:** *Deprecated*
-> **Focus:** Enterprise Modularization.
-
-*   **Goal:** Organizing code into a nested `src/` structure with separate blueprints for scalability.
-*   **Outcome:** Introduced excessive complexity with import paths and `TemplateNotFound` errors.
-*   **Pivot:** Decided that for this specific scale, a monolithic, flat structure offers superior maintainability and developer velocity.
 
 ## **v7.0: The "Fluid UX" Update**
 **Status:** *Released*

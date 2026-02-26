@@ -1,38 +1,55 @@
-let deferredPrompt;
-const installBtn = document.getElementById('install-btn');
+/**
+ * Digital Dukan PWA Installer Logic (v9.5)
+ */
 
-if (installBtn) {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPrompt = e;
-    // Update UI notify the user they can install the PWA
-    installBtn.style.display = 'inline-flex';
-    
-    console.log('beforeinstallprompt fired');
-  });
+(function () {
+    let deferredPrompt;
+    const installBanner = document.getElementById('pwa-install-banner');
+    const installTrigger = document.getElementById('pwa-install-trigger');
+    const closeBtn = document.getElementById('pwa-close-btn');
 
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) {
-      return;
+    // 0. Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        console.log("PWA: Running in app mode.");
+        return; 
     }
-    // Show the install prompt
-    deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    // We've used the prompt, and can't use it again, throw it away
-    deferredPrompt = null;
-    // Hide the button
-    installBtn.style.display = 'none';
-  });
 
-  window.addEventListener('appinstalled', () => {
-    // Hide the app-provided install promotion
-    installBtn.style.display = 'none';
-    // Clear the deferredPrompt so it can be garbage collected
-    deferredPrompt = null;
-    console.log('PWA was installed');
-  });
-}
+    // 1. Listen for install availability
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBanner) installBanner.classList.add('active');
+        console.log("PWA: Install Prompt Ready");
+    });
+
+    // 2. Handle Install Action
+    if (installTrigger) {
+        installTrigger.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        if (installBanner) installBanner.classList.remove('active');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Fallback for iOS or cases where prompt isn't ready
+                alert("To install: Tap the 'Share' icon and then 'Add to Home Screen'.");
+            }
+        });
+    }
+
+    // 3. Close Logic
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+             if (installBanner) installBanner.classList.remove('active');
+        });
+    }
+
+    // 4. Auto-hide when successful
+    window.addEventListener('appinstalled', () => {
+        if (installBanner) installBanner.classList.remove('active');
+    });
+
+})();

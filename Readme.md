@@ -1,136 +1,134 @@
-# Digital Dukan (v8.0) - Premium B2B Textile Marketplace
-> **Architected by:** Biranchi Narayan Mahapatra   
-> **Status:** Authorized Release (v8.0)  
-> **Aesthetic:** "Antigravity" - Premium Black & Gold (B2B Luxury)  
+# 🏗️ Surat Textile B2B Nexus — Enterprise SaaS Backend
+
+[![Flask](https://img.shields.io/badge/Flask-2.3+-black.svg?style=for-the-badge&logo=flask)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7+-red.svg?style=for-the-badge&logo=redis)](https://redis.io/)
+[![Python](https://img.shields.io/badge/Python-3.11+-yellow.svg?style=for-the-badge&logo=python)](https://python.org/)
+
+> **Comprehensive Documentation for a Production-Ready B2B Marketplace.**
+> This project implements industry-standard architectural patterns for high-scale commerce, featuring automated decision intelligence and enterprise-grade security.
 
 ---
 
-## 1. Executive Summary: The Vision
-
-**Digital Dukan** is a high-fidelity **B2B Digital Showroom** engineered specifically for the Surat Textile Market. It bridges the gap between traditional manufacturing and modern digital commerce.
-
-Unlike standard e-commerce sites, this platform is designed for **Wholesale Discovery**. It emphasizes "Collections" and "Catalogs" over individual item transactions, reflecting how B2B textile trade actually works (bulk inquiries, design sets, and category browsing).
-
-**Key Differentiators:**
-*   **App-like Experience:** Single-page feel with instant transitions.
-*   **Visual-First Discovery:** High-impact imagery with premium "Ghost Card" and "Banner" UI.
-*   **No-Login B2B Cart:** Frictionless inquiry generation via WhatsApp.
-*   **Smart Filtering:** Backend-driven logic for sorting by Trends, Bestsellers, and Fabric/Work types.
-
----
-
-## 2. Key Features (v8.0)
-
-### 2.1 Premium Homepage Experience
-*   **Hero Section:** Glassmorphic search bar with instant visual appeal.
-*   **Featured Collections:** Large, banner-style cards (Festive, Premium Silk, Trending) with:
-    *   **Hover Mode:** Cards lift and shadows deepen on interaction.
-    *   **Interactive CTA:** "Explore" arrow animates on hover.
-    *   **Smart Linking:** Direct mapping to filtered catalog views (e.g., `work_type=Embroidery`).
-*   **Category Discovery:** Sleek, pill-shaped tiles for quick access to Sarees, Kurtis, and Dress Materials.
-*   **New Arrivals Feed:** An infinite-scroll style feed of the latest products with "Add to Bag" functionality.
-
-### 2.2 Intelligent Catalog & Search
-*   **Advanced Filtering:** 
-    *   **Search**: Fuzzy logic matches Product Name, Color, Fabric, or Work Type.
-    *   **Sort**: 'Trending' (Views), 'Bestseller' (Inquiries), 'Newest' (ID).
-    *   **Badges**: Dynamic 'SOLD OUT' and 'NEW' badges based on stock and recency.
-*   **Backend Logic:** All filtering happens in Python (`app.py`) using robust SQLAlchemy queries, ensuring data integrity and SEO-friendly URLs (e.g., `/catalog?sort=trending`).
-
-### 2.3 The "Inquiry Bag" (B2B Cart)
-*   **Persistence:** LocalStorage-based cart ensures selections survive page reloads.
-*   **WhatsApp Bridge:** The "Checkout" action constructs a pre-formatted message with Design Numbers, allowing buyers to send a formal inquiry directly to the seller's WhatsApp.
-*   **Zero Friction:** No account creation required—optimized for rapid B2B decision-making.
+## 📖 Table of Contents
+- [Project Overview](#-project-overview)
+- [Enterprise Feature Set](#-enterprise-feature-set)
+- [Decision Intelligence & Analytics](#-decision-intelligence--analytics)
+- [Technology Stack](#-technology-stack)
+- [System Infrastructure & Directory Structure](#-system-infrastructure--directory-structure)
+- [Getting Started](#-getting-started)
+- [API Documentation (Swagger)](#-api-documentation-swagger)
+- [Testing & CI/CD Pipeline](#-testing--cicd-pipeline)
+- [Security Implementation](#-security-implementation)
 
 ---
 
-## 3. Technical Architecture
+## 🌟 Project Overview
+**Textile B2B Nexus** is a modular SaaS platform engineered for the Surat textile manufacturing hub. It facilitates digital transformation for traditional wholesalers by providing a high-performance, mobile-first marketplace.
 
-We adhere to a **Flat Directory Structure** for maximum reliability and ease of deployment on minimal infrastructure.
+The system is built on an **N-Tier Architecture**, ensuring clear separation between business logic, data persistence, and the presentation layer. It focuses on large-scale inventory management and real-time lead generation.
 
+---
+
+## 🚀 Enterprise Feature Set
+1.  **Modular Monolith Architecture:** Implements a decoupled structure using Flask Blueprints and a strict Service-Layer pattern.
+2.  **Stateful Inventory Management:** High-speed stock status synchronization via **AJAX**, ensuring atomic updates without page refreshes.
+3.  **Automated Business Logic:** Integrated systems for identifying top-performing categories and stagnant inventory.
+4.  **Advanced Analytics Suite:** Interactive visualization of lead velocity, category conversion efficiency, and predictive inventory health.
+5.  **PWA Core:** Mobile-optimized Progressive Web App with offline manifest support and SEO-ready infrastructure.
+6.  **Backend Optimization:**
+    *   **Rate Limiting:** Granular traffic control via Flask-Limiter to prevent resource abuse.
+    *   **Data Integrity:** Strict schema validation using **Marshmallow**.
+    *   **Performance Caching:** Highly optimized catalog discovery using **Redis**-backed memoization.
+    *   **Authentication:** Multi-role access control (RBAC) with session encryption.
+
+---
+
+## 🧠 Decision Intelligence & Analytics
+The platform leverages data-driven insights to optimize business operations:
+-   **Inventory Health Monitoring:** A dynamic metric representing the ratio of active vs. stagnant inventory, allowing for data-backed procurement decisions.
+-   **Dead Stock Identification:** Automated detection of products with high impressions but zero conversions (>10 views, 0 clicks), flagging them for immediate inventory adjustment.
+-   **Category Conversion Analysis:** Calculates the efficiency of each product category (`whatsapp_leads / product_views`) to prioritize high-ROI manufacturing lines.
+
+---
+
+## 🛠️ Technology Stack
+| Component | Technology | Rationale |
+| :--- | :--- | :--- |
+| **Backend Framework** | Python 3.11+ / Flask | Agile development with high extensibility |
+| **Persistence Layer** | PostgreSQL / SQLite | Relational data integrity for complex B2B schemas |
+| **Distributed Cache** | Redis | Sub-10ms response times for metadata and session storage |
+| **Schema Validation** | Marshmallow | Formalized data contracts between frontend and backend |
+| **API Standards** | Swagger / OpenAPI 3.0 | Facilitates seamless integration for mobile applicatons |
+| **Testing Framework** | Pytest / Coverage | Ensures codebase stability and prevents regression |
+| **Frontend Strategy** | Jinja2 / AJAX / CSS3 | Fast-loading, server-side rendered UI with partial dynamic updates |
+
+---
+
+## 📂 System Infrastructure & Directory Structure
 ```text
-/Textile_Demo_Site
-│
-├── app.py                # THE CORE: Flask Application, Routing, DB Models.
-├── textile.db            # THE DATA: SQlite Database (Auto-generated).
-├── bulk_factory_real.py  # THE FACTORY: Script to generate 100+ realistic demo products.
-│
-├── /static               # ASSETS
-│   ├── /css
-│   │   └── style.css     # "Antigravity" Design System (Dark/Light Mode).
-│   ├── /js
-│   │   └── main.js       # Frontend Logic (Cart, Search, UI Interactions).
-│   └── /images           # Optimized WebP/AVIF Product Images.
-│
-└── /templates            # VIEWS (Jinja2)
-    ├── base.html         # Master Layout (Navbar, Footer, Cart Drawer).
-    ├── index.html        # Homepage (Feed, Collections, Hero).
-    ├── catalog.html      # Filterable Grid View.
-    ├── admin.html        # Product Management Interface.
-    └── cart_drawer.html  # Slide-out Inquiry Cart.
+.
+├── app/                        # Core Application Module
+│   ├── config/                 # Environment-specific Configurations
+│   ├── namespaces/             # Domain-Driven Blueprints (Modular Units)
+│   │   ├── admin/              # ERP Logic & Admin Dashboard
+│   │   ├── api/v1/             # RESTful JSON Services
+│   │   ├── auth/               # Access Control & Identity Management
+│   │   ├── catalog/            # Discovery & Filtering Engine
+│   │   └── public/             # Public Route Handlers
+│   ├── utils/                  # Shared Utility Functions (JWT, Logging)
+│   ├── models.py               # Centralized Data Models (SQLAlchemy)
+│   ├── extensions.py           # Pluggable Component Initialization
+│   └── __init__.py             # Application Factory Implementation
+├── static/                     # Assets & Web Manifests
+├── templates/                  # Component-oriented Jinja2 Layouts
+├── migrations/                 # Schema Versioning (Alembic)
+├── tests/                      # Unit & Integration Test Suites
+├── docs/                       # API Specifications & Postman Collections
+├── instance/                   # Runtime Files (Local Database)
+└── app.py                      # Global Execution Entrypoint
 ```
 
-### The Tech Stack
-*   **Backend:** Flask (Python 3.10+) - Lightweight, fast, and secure.
-*   **Database:** SQLAlchemy + SQLite - Serverless, zero-config data storage.
-*   **Frontend:** HTML5 + Jinja2 + Bootstrap 5 (Customized) + Vanilla JS.
-*   **Styling:** Custom CSS Variables for Theme Management (Dark Mode Default).
+---
+
+## 🛠️ Getting Started
+
+### 1. Environment Initialization
+```bash
+git clone https://github.com/Thorfinn903/surat-textile-demo.git
+cd surat-textile-demo
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Database Preparation
+```bash
+flask db upgrade
+python bulk_factory_real.py  # Seed the database with 100+ realistic entities
+```
+
+### 3. Execution
+```bash
+python app.py
+```
+*   **Production Dashboard:** `http://localhost:5000/admin` (Seed Admin: `admin` / `admin123`)
 
 ---
 
-## 4. Database Schema (The "Product" Model)
-
-The `Product` model is the single source of truth (`app.py`).
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | Integer | Internal Primary Key. |
-| `name` | String | Display Name (e.g., "Royal Banarasi Silk"). |
-| `category` | String | "Saree", "Kurti", "Lehenga", etc. |
-| `work_type` | String | "Embroidery", "Print", "Zari", "Handwork". |
-| `material_type` | String | "Silk", "Cotton", "Georgette", "Linen". |
-| `color` | String | Dominant color for search indexing. |
-| `price` | Float | (Optional) Wholesale price. |
-| `image` | String | Filename in `static/images/`. |
-| `views` | Integer | **Analytics**: Used for "Trending" sort. |
-| `whatsapp_clicks` | Integer | **Analytics**: Used for "Bestseller" sort. |
+## 🧪 Testing & CI/CD Pipeline
+The project enforces a strict stability policy through automated quality assurance.
+-   **Test Execution:** Run `pytest --cov=app` to initiate the suite.
+-   **CI Integration:** GitHub Actions automate the testing process on every pull request to ensure architectural integrity.
+-   **Database Mocking:** Tests utilize an isolated, in-memory database to ensure zero-side-effect execution.
 
 ---
 
-## 5. Developer Manual
-
-### 5.1 Installation & Setup
-1.  **Prerequisites:** Python 3.x installed.
-2.  **Install Dependencies:**
-    ```bash
-    pip install Flask Flask-SQLAlchemy
-    ```
-3.  **Initialize Data (Optional):**
-    To generate dummy data (100+ products):
-    ```bash
-    python bulk_factory_real.py
-    ```
-4.  **Run Application:**
-    ```bash
-    python app.py
-    ```
-5.  **Access:** Open `http://127.0.0.1:5000` in your browser.
-
-### 5.2 Managing Products
-*   **Admin Panel:** Access `/admin` to add individual products.
-*   **Database Reset:** Delete `textile.db` and re-run `bulk_factory_real.py` to reset the catalog.
-
-### 5.3 Customization
-*   **Theme:** Edit `static/css/style.css`. Change `--accent` to update the Gold brand color.
-*   **Images:** Add new images to `static/images/` and reference them in `bulk_factory_real.py` or the Admin panel.
+## 🔒 Security Implementation
+-   **Infrastructure Hardening:** Rate limiting applied to all sensitive authentication endpoints.
+-   **Input Sanitization:** Native SQL-injection mitigation via the SQLAlchemy ORM layer.
+-   **Cryptographic Security:** High-entropy password hashing using PBKDF2.
+-   **Role-Based Security:** Custom decorators implemented to enforce strict authorization across administrative namespaces.
 
 ---
-
-## 6. Future Roadmap
-*   **User Accounts:** for saving "Wishlists" across devices.
-*   **Order History:** for tracking past inquiries.
-*   **Multi-Vendor Support:** allowing multiple manufacturers to list on one platform.
-
----
-
-> **"We didn't just build a website. We built a digital asset class."**
+© 2026 Surat Textile Nexus — Engineered for Enterprise Scale.

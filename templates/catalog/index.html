@@ -1,0 +1,316 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+  <!-- ============================================
+       STICKY SEARCH BAR
+       ============================================ -->
+  <div class="catalog-sticky-search" id="catalog-sticky-search">
+    <div class="container">
+      <div class="catalog-search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="catalog-search-box" class="catalog-search-input"
+               placeholder="Search by Design No, Color, or Fabric..."
+               value="{{ request.args.get('q', '') }}">
+      </div>
+      <div class="filter-chip-bar" id="catalog-filter-bar">
+        <div class="filter-chip reset active" data-filter="all">All</div>
+        
+        <span class="filter-group-label">Category</span>
+        {% for cat in product_category_options %}
+        <div class="filter-chip" data-filter-type="category" data-filter-value="{{ cat }}">{{ cat }}</div>
+        {% endfor %}
+        
+        <span class="filter-group-label">Fabric</span>
+        {% for mat in material_type_options %}
+        <div class="filter-chip" data-filter-type="fabric" data-filter-value="{{ mat }}">{{ mat }}</div>
+        {% endfor %}
+
+        <span class="filter-group-label">Price</span>
+        <div class="filter-chip" data-filter-type="price" data-filter-value="under-500">Under ₹500</div>
+        <div class="filter-chip" data-filter-type="price" data-filter-value="500-1000">₹500 - ₹1000</div>
+        <div class="filter-chip" data-filter-type="price" data-filter-value="above-1000">Above ₹1000</div>
+
+        <span class="filter-group-label">MOQ</span>
+        <div class="filter-chip" data-filter-type="moq" data-filter-value="under-5">Under 5</div>
+        <div class="filter-chip" data-filter-type="moq" data-filter-value="5-10">5 - 10</div>
+        <div class="filter-chip" data-filter-type="moq" data-filter-value="above-10">Above 10</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       CATALOG GRID — Warehouse View
+       ============================================ -->
+  <div class="container py-4" id="catalog-grid-section">
+    <div class="section-header">
+      <h1 class="section-title">Full Catalog</h1>
+      <span style="font-size: 13px; color: var(--text-tertiary); font-weight: 500;">
+        {{ products.total }} designs found
+      </span>
+    </div>
+
+    {% if products.items %}
+    <div class="feed-grid" id="catalog-grid">
+      {% for product in products.items %}
+      <div class="b2b-modern-card"
+           data-id="{{ product.id + 1000 }}"
+           data-dno="{{ product.id + 1000 }}"
+           data-name="{{ product.name }}"
+           data-img="{{ url_for('static', filename='images/' + product.image) }}"
+           data-fabric="{{ product.material_type }}"
+           data-category="{{ product.category or 'Other' }}"
+           data-work="{{ product.work_type }}"
+           data-price="{{ product.wholesale_price or 0 }}"
+           data-moq="{{ product.moq or 4 }}"
+           data-stock="{{ product.stock_status or 'READY' }}"
+           onclick="openQuickView(this)">
+        
+        <!-- MOQ Badge -->
+        <div class="b2b-badge-moq">MOQ: {{ product.moq or 4 }}</div>
+
+        <div class="b2b-card-img-wrap">
+          <img
+            src="{{ url_for('static', filename='images/' + product.image) }}"
+            class="b2b-card-img"
+            alt="{{ product.name }}"
+            loading="lazy"
+          />
+          
+          <!-- Stock Badges -->
+          {% if product.stock_status == 'SOLD OUT' %}
+          <span class="stock-badge stock-badge-sold">SOLD OUT</span>
+          {% else %}
+          <span class="stock-badge stock-badge-ready">READY</span>
+          {% endif %}
+        </div>
+
+        <div class="b2b-card-body">
+          <div class="b2b-card-title">{{ product.name }}</div>
+          
+          <div class="b2b-card-meta">
+            {% if product.wholesale_price %}
+              <span class="b2b-card-price">₹{{ product.wholesale_price }}/pc</span>
+            {% else %}
+              <span class="b2b-card-request-price">Request for Price</span>
+            {% endif %}
+          </div>
+
+          {% if product.stock_status == 'SOLD OUT' %}
+          <button class="btn btn-outline-secondary w-100 rounded-pill opacity-75"
+              onclick="event.stopPropagation(); showToast('Sold Out: Opening Notify Me options...', 'warning'); openQuickView(this.closest('.b2b-modern-card'))"
+              data-stock="SOLD OUT">
+            <i class="fas fa-bell me-1"></i> Notify Me
+          </button>
+          {% else %}
+          <button class="btn btn-b2b-primary btn-add-cart"
+              onclick="event.stopPropagation(); toggleCart(this)"
+              data-id="{{ product.id + 1000 }}"
+              data-dno="{{ product.id + 1000 }}"
+              data-name="{{ product.name }}"
+              data-price="{{ product.wholesale_price or 0 }}"
+              data-moq="{{ product.moq or 4 }}"
+              data-stock="READY"
+              data-image="{{ url_for('static', filename='images/' + product.image) }}">
+            <i class="fas fa-file-invoice"></i> Inquiry
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if products.pages > 1 %}
+    <nav class="pagination-container py-4">
+      <ul class="pagination justify-content-center">
+        {% if products.has_prev %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('catalog.index', **dict(request.args.to_dict(), page=products.prev_num)) }}">
+            <i class="fas fa-chevron-left"></i> Previous
+          </a>
+        </li>
+        {% endif %}
+
+        {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if page_num %}
+            <li class="page-item {% if page_num == products.page %}active{% endif %}">
+              <a class="page-link" href="{{ url_for('catalog.index', **dict(request.args.to_dict(), page=page_num)) }}">{{ page_num }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('catalog.index', **dict(request.args.to_dict(), page=products.next_num)) }}">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-box-open mb-3" style="font-size: 48px; color: var(--text-tertiary); opacity: 0.3;"></i>
+      <p class="text-muted">No products match your filters. Try clearing filters.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick View Modal handled globally in base.html -->
+
+
+<!-- Scripts -->
+<script>
+  let viewTimer = null;
+
+  function trackInquiry(productId) {
+    const fixedId = productId > 1000 ? productId - 1000 : productId;
+    fetch("/track-inquiry/" + fixedId, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }).catch((err) => console.log("Tracking error:", err));
+  }
+
+  // View and Tracking logic is now handled globally by openQuickView in main.js
+
+
+  // Instant Client-Side Filtering Engine
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchBox = document.getElementById('catalog-search-box');
+    const chipBar = document.getElementById('catalog-filter-bar');
+    const chips = document.querySelectorAll('.filter-chip');
+    const cards = document.querySelectorAll('.b2b-modern-card');
+
+    let activeFilters = {
+      category: null,
+      fabric: null,
+      price: null,
+      moq: null,
+      search: ''
+    };
+
+    function updateGrid() {
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const fabric = card.getAttribute('data-fabric');
+        const category = card.getAttribute('data-category');
+        const price = parseFloat(card.getAttribute('data-price') || 0);
+        const moq = parseInt(card.getAttribute('data-moq') || 0);
+        const name = card.getAttribute('data-name').toLowerCase();
+        const id = card.getAttribute('data-id');
+
+        let show = true;
+
+        // Category Filter
+        if (activeFilters.category && category !== activeFilters.category) {
+           show = false;
+        }
+
+        // Fabric Filter
+        if (activeFilters.fabric && fabric !== activeFilters.fabric) {
+           show = false;
+        }
+
+        // Price Filter
+        if (show && activeFilters.price) {
+          if (activeFilters.price === 'under-500' && price >= 500) show = false;
+          else if (activeFilters.price === '500-1000' && (price < 500 || price > 1000)) show = false;
+          else if (activeFilters.price === 'above-1000' && price <= 1000) show = false;
+        }
+
+        // MOQ Filter
+        if (show && activeFilters.moq) {
+          if (activeFilters.moq === 'under-5' && moq >= 5) show = false;
+          else if (activeFilters.moq === '5-10' && (moq < 5 || moq > 10)) show = false;
+          else if (activeFilters.moq === 'above-10' && moq <= 10) show = false;
+        }
+
+        // Search Filter (AND)
+        if (show && activeFilters.search) {
+          if (!name.includes(activeFilters.search) && !id.includes(activeFilters.search)) {
+            show = false;
+          }
+        }
+
+        card.style.display = show ? 'block' : 'none';
+        if (show) visibleCount++;
+      });
+
+      // Update Result Count
+      const countEl = document.querySelector('.section-header span');
+      if (countEl) countEl.textContent = `${visibleCount} designs found`;
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', function() {
+        const type = this.getAttribute('data-filter-type');
+        const val = this.getAttribute('data-filter-value');
+
+        if (this.classList.contains('active') && !this.classList.contains('reset')) {
+          this.classList.remove('active');
+          activeFilters[type] = null;
+          // Reactivate 'All' if nothing else is active
+          if (!Object.values(activeFilters).some(v => v !== null && typeof v === 'string' && v !== '')) {
+             document.querySelector('.filter-chip.reset').classList.add('active');
+          }
+        } else {
+          if (this.classList.contains('reset')) {
+            chips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            activeFilters = { category: null, fabric: null, price: null, moq: null, search: searchBox.value.toLowerCase() };
+          } else {
+            // Remove active from same group
+            document.querySelectorAll(`.filter-chip[data-filter-type="${type}"]`).forEach(c => c.classList.remove('active'));
+            document.querySelector('.filter-chip.reset').classList.remove('active');
+            this.classList.add('active');
+            activeFilters[type] = val;
+          }
+        }
+        updateGrid();
+      });
+    });
+
+    // Drag to Scroll functionality for PC
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    if (chipBar) {
+      chipBar.addEventListener('mousedown', (e) => {
+        isDown = true;
+        chipBar.classList.add('active');
+        startX = e.pageX - chipBar.offsetLeft;
+        scrollLeft = chipBar.scrollLeft;
+      });
+      chipBar.addEventListener('mouseleave', () => {
+        isDown = false;
+      });
+      chipBar.addEventListener('mouseup', () => {
+        isDown = false;
+      });
+      chipBar.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - chipBar.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed
+        chipBar.scrollLeft = scrollLeft - walk;
+      });
+    }
+
+    if (searchBox) {
+      searchBox.addEventListener('input', function() {
+        activeFilters.search = this.value.toLowerCase();
+        updateGrid();
+      });
+    }
+  });
+</script>
+
+{% endblock %}

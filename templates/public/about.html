@@ -1,0 +1,170 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<!-- ============================================
+     ABOUT HEADER — Clean Typography
+     ============================================ -->
+<div style="padding: 60px 0 40px; text-align: center; background: var(--bg-body);">
+  <div class="container">
+    <p style="font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px;">
+      ABOUT US
+    </p>
+    <h1 style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(1.75rem, 5vw, 2.75rem); font-weight: 800; color: var(--text-primary); letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 16px;">
+      Surat's Most Trusted<br>Textile Partner Since 2005
+    </h1>
+    <p style="font-size: 1rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto; line-height: 1.7;">
+      From a single shop in Millennium Market to a full digital textile operation two decades of trust, quality, and direct factory pricing.
+    </p>
+  </div>
+</div>
+
+
+<!-- ============================================
+     STATS STRIP — 3 Simple Cards
+     ============================================ -->
+<div class="container" style="margin-bottom: 48px;">
+  <div class="row g-3">
+
+    <div class="col-4">
+      <div class="about-stat-card">
+        <div class="about-stat-number">20+</div>
+        <div class="about-stat-label">Years Experience</div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="about-stat-card">
+        <div class="about-stat-number">500+</div>
+        <div class="about-stat-label">Retailers</div>
+      </div>
+    </div>
+
+    <div class="col-4">
+      <div class="about-stat-card">
+        <div class="about-stat-number">100%</div>
+        <div class="about-stat-label">Quality Check</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ============================================
+     HERITAGE TIMELINE — Vertical Journey
+     ============================================ -->
+<div style="background: var(--bg-surface); padding: 56px 0;">
+  <div class="container">
+    <div class="section-header" style="margin-bottom: 36px;">
+      <h2 class="section-title">Our Journey</h2>
+    </div>
+
+    <div class="timeline">
+
+      <!-- 2005 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2005</div>
+          <h3 class="timeline-heading">The Beginning — IT WORLD</h3>
+          <p class="timeline-text">
+            Started as a small computer repair shop named <strong>"IT WORLD"</strong> in Surat's bustling Millennium Market. A dream of entrepreneurship with just ₹50,000 capital.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2010 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2010</div>
+          <h3 class="timeline-heading">The Pivot — Entering Textiles</h3>
+          <p class="timeline-text">
+            Noticed the massive opportunity in Surat's textile industry. Pivoted from IT to textile trading, starting with Saree manufacturing and wholesale supply.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2015 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2015</div>
+          <h3 class="timeline-heading">Scaling Up — 100+ Retailers</h3>
+          <p class="timeline-text">
+            Built a network of 100+ retail partners across Gujarat and Maharashtra. Established our own quality checking process every piece inspected before dispatch.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2020 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2020</div>
+          <h3 class="timeline-heading">Going Digital — WhatsApp Business</h3>
+          <p class="timeline-text">
+            Adopted WhatsApp Business for catalog sharing and instant orders. During COVID, this became our lifeline 3x growth while traditional shops struggled.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2024 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-year">2024</div>
+          <h3 class="timeline-heading">Digital Dukan — The SaaS Platform</h3>
+          <p class="timeline-text">
+            Launched <strong>Digital Dukan</strong> — a complete digital storefront with real-time catalog, WhatsApp integration, and analytics. Now serving <strong>500+ retailers</strong> nationwide.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================
+     WHY US — 4 Value Props
+     ============================================ -->
+<div class="container" style="padding: 56px 0;">
+  <div class="section-header" style="margin-bottom: 28px;">
+    <h2 class="section-title">Why Choose Us</h2>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-6 col-md-3">
+      <div class="about-feature-card">
+        <div class="about-feature-icon"><i class="fas fa-industry"></i></div>
+        <h4 class="about-feature-title">Direct Factory</h4>
+        <p class="about-feature-desc">No middlemen, best wholesale prices</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="about-feature-card">
+        <div class="about-feature-icon"><i class="fas fa-shield-alt"></i></div>
+        <h4 class="about-feature-title">Quality First</h4>
+        <p class="about-feature-desc">Every piece checked before dispatch</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="about-feature-card">
+        <div class="about-feature-icon"><i class="fas fa-truck"></i></div>
+        <h4 class="about-feature-title">Pan-India Delivery</h4>
+        <p class="about-feature-desc">Ship to all states, on time</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="about-feature-card">
+        <div class="about-feature-icon"><i class="fab fa-whatsapp"></i></div>
+        <h4 class="about-feature-title">Instant Support</h4>
+        <p class="about-feature-desc">WhatsApp orders in minutes</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

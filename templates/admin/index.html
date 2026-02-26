@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - {{ shop_settings.shop_name }}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}?v={{ asset_version }}">
+</head>
+<body>
+
+    <div class="spa-wrapper">
+        
+        <!-- === SIDEBAR (ERP Style) === -->
+        <nav class="admin-sidebar">
+            <a href="#" class="sidebar-logo">
+                <i class="fas fa-layer-group me-2" style="color: var(--primary-accent);"></i> Digital Dukan</span>
+            </a>
+            
+            <div class="sidebar-nav">
+                <a href="#" class="sidebar-nav-link active" onclick="switchView('overview', 'Desk', this)">
+                    <i class="fas fa-home"></i> Overview
+                </a>
+                <a href="#" class="sidebar-nav-link" onclick="switchView('inventory', 'Inventory Manager', this)">
+                    <i class="fas fa-box"></i> Inventory
+                </a>
+                <a href="#" class="sidebar-nav-link" onclick="switchView('upload', 'Product Entry', this)">
+                    <i class="fas fa-plus-circle"></i> Add Product
+                </a>
+                <a href="#" class="sidebar-nav-link" onclick="switchView('market', 'Market Analytics', this)">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="#" class="sidebar-nav-link" onclick="switchView('users', 'System Users', this)">
+                    <i class="fas fa-users"></i> Team & Logs
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('public.index') }}" class="sidebar-nav-link">
+                    <i class="fas fa-external-link-alt"></i> View Store
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-nav-link" style="color: var(--danger-text);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </nav>
+
+        <!-- === MAIN CANVAS === -->
+        <main class="admin-main">
+            
+            <!-- WELCOME BAR -->
+            <header class="welcome-bar">
+                <h1 class="page-title" id="page-title">Desk</h1>
+                
+                <div class="d-flex align-items-center">
+                    <div class="text-end me-3 d-none d-md-block">
+                        <div class="fw-bold" style="font-size: 0.85rem;">{{ current_user.username }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem; letter-spacing: 0.5px;">{{ current_user.role|upper }}</div>
+                    </div>
+                    <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-weight: 600; font-size: 0.9rem;">
+                        {{ current_user.username[0]|upper }}
+                    </div>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE CONTENT -->
+            <div class="content-scroll-area">
+                
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-success d-flex align-items-center border-0 shadow-sm" role="alert" style="background: var(--success-bg); color: var(--success-text);">
+                            <i class="fas fa-check-circle me-2"></i> 
+                            <div>{{ messages[0] }}</div>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- === SECTIONS === -->
+                
+                <!-- SECTION: OVERVIEW -->
+                <div id="view-overview" class="admin-section active">
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-title">Total SKUs</div>
+                                    <i class="fas fa-layer-group stat-icon"></i>
+                                </div>
+                                <div>
+                                    <div class="stat-value">{{ total_skus }}</div>
+                                    <div class="stat-trend neutral">
+                                        <i class="fas fa-minus"></i> No Change
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-title">Ready Stock</div>
+                                    <i class="fas fa-check-circle stat-icon"></i>
+                                </div>
+                                <div>
+                                    <div class="stat-value">
+                                        {{ ready_stock_count }}
+                                    </div>
+                                    <div class="stat-trend positive">
+                                        <i class="fas fa-arrow-up"></i> Available
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-title">Stock Out</div>
+                                    <i class="fas fa-times-circle stat-icon"></i>
+                                </div>
+                                <div>
+                                    <div class="stat-value">
+                                        {{ sold_out_count }}
+                                    </div>
+                                    <div class="stat-trend negative">
+                                        <i class="fas fa-arrow-down"></i> Needs Restock
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if current_user.role == 'admin' %}
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <span>Top Performing Designs</span>
+                            <span class="badge bg-warning text-dark border border-warning">Trending</span>
+                        </div>
+                        <div class="table-container">
+                            <table class="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Design ID</th>
+                                        <th>Performance</th>
+                                        <th class="text-end">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in trending_products %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ url_for('static', filename='images/' + product.image) }}" class="table-img me-3">
+                                                <div>
+                                                    <div class="fw-bold">#{{ product.id + 1000 }}</div>
+                                                    <div class="text-secondary small">{{ product.name }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold">{{ product.inquiry_count or 0 }} Leads</div>
+                                            <div class="text-secondary small">{{ product.view_count or 0 }} Views</div>
+                                        </td>
+                                        <td class="text-end">
+                                             <button onclick="toggleStock(this, {{ product.id }})" class="ghost-badge {% if product.stock_status == 'READY' %}ready{% else %}sold{% endif %}">
+                                                {{ 'READY' if product.stock_status == 'READY' else 'SOLD OUT' }}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="3" class="text-center py-4 text-muted">No data available</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- SECTION: INVENTORY -->
+                <div id="view-inventory" class="admin-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <div class="text-secondary fw-bold">Master Catalog</div>
+                        <div class="d-flex gap-2">
+                             <div class="dropdown">
+                                <button class="btn btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-sort-amount-down me-2"></i> Sort By
+                                </button>
+                                <ul class="dropdown-menu shadow-sm">
+                                    <li><a class="dropdown-item" href="?sort=newest"><i class="fas fa-clock me-2 text-muted"></i> Newest First</a></li>
+                                    <li><a class="dropdown-item" href="?sort=most_viewed"><i class="far fa-eye me-2 text-muted"></i> Most Viewed</a></li>
+                                    <li><a class="dropdown-item" href="?sort=most_inquired"><i class="fas fa-mouse-pointer me-2 text-muted"></i> Most Inquired</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="?sort=stock_out"><i class="fas fa-ban me-2 text-muted"></i> Out of Stock</a></li>
+                                    <li><a class="dropdown-item" href="?sort=dead_stock"><i class="fas fa-exclamation-triangle me-2 text-danger"></i> Dead Stock</a></li>
+                                </ul>
+                            </div>
+                            <div class="input-group border rounded overflow-hidden" style="width: 250px; box-shadow: var(--shadow-soft);">
+                                <span class="input-group-text bg-white border-0"><i class="fas fa-search text-secondary"></i></span>
+                                <input type="text" id="inventorySearch" class="form-control border-0" placeholder="Search Design No..." onkeyup="filterInventory()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-card p-0">
+                        <div class="table-container">
+                            <table class="inventory-table" id="inventoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Specs</th>
+                                        <th>Activity</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in products.items %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <span class="fw-bold me-2">#{{ product.id + 1000 }}</span>
+                                                <img src="{{ url_for('static', filename='images/' + product.image) }}" class="table-img">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">{{ product.category }}</div>
+                                            <small class="text-secondary">{{ product.material_type }} · {{ product.work_type }}</small>
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark fw-normal border">₹{{ product.wholesale_price or 0 }}</span>
+                                                <span class="badge bg-light text-dark fw-normal border">MOQ: {{ product.moq or 4 }}</span>
+                                                {% if product.whatsapp_clicks == 0 and product.views > 10 %}
+                                                <span class="badge bg-danger-subtle text-danger fw-bold border border-danger-subtle ms-1" style="font-size: 0.65rem;">DEAD STOCK</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <small><i class="far fa-eye me-1"></i> {{ product.views or 0 }}</small>
+                                                <small><i class="fas fa-mouse-pointer me-1"></i> {{ product.whatsapp_clicks or 0 }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button onclick="toggleStock(this, {{ product.id }})" class="ghost-badge {% if product.stock_status == 'READY' %}ready{% else %}sold{% endif %}">
+                                                {{ 'READY' if product.stock_status == 'READY' else 'SOLD OUT' }}
+                                            </button>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if current_user.role == 'admin' %}
+                                            <a href="{{ url_for('admin.delete', id=product.id) }}" class="text-secondary hover-danger" onclick="return confirm('Permanently delete this item?');">
+                                                <i class="far fa-trash-alt"></i>
+                                            </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Admin Pagination -->
+                    {% if products.pages > 1 %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if products.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.admin', **dict(request.args.to_dict(), page=products.prev_num)) }}">
+                                    <i class="fas fa-chevron-left me-1"></i> Prev
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == products.page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('admin.admin', **dict(request.args.to_dict(), page=page_num)) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.admin', **dict(request.args.to_dict(), page=products.next_num)) }}">
+                                    Next <i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+
+                <!-- SECTION: UPLOAD -->
+                <div id="view-upload" class="admin-section">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Single Product Entry</div>
+                                <div class="admin-card-body">
+                                    <form action="{{ url_for('admin.admin') }}" method="POST" enctype="multipart/form-data">
+                                        <input type="hidden" name="add_product" value="true">
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-secondary">Design Name</label>
+                                            <input type="text" name="name" class="form-control" placeholder="e.g. Floral Print 001" required>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-6">
+                                                <label class="form-label small fw-bold text-secondary">Category</label>
+                                                <select name="product_category" class="form-select">
+                                                    {% for option in product_category_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label small fw-bold text-secondary">Work Type</label>
+                                                <select name="work_type" class="form-select">
+                                                    {% for option in work_type_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-12 mt-2">
+                                                <label class="form-label small fw-bold text-secondary">Fabric</label>
+                                                <select name="material_type" class="form-select">
+                                                    {% for option in material_type_options %}<option value="{{ option }}">{{ option }}</option>{% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col-6 mt-2">
+                                                <label class="form-label small fw-bold text-secondary">Wholesale Price (₹)</label>
+                                                <input type="number" step="0.01" name="wholesale_price" class="form-control" placeholder="450.00">
+                                            </div>
+                                            <div class="col-6 mt-2">
+                                                <label class="form-label small fw-bold text-secondary">MOQ (pcs)</label>
+                                                <input type="number" name="moq" class="form-control" placeholder="4" value="4">
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label small fw-bold text-secondary">Product Image</label>
+                                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-dark w-100 py-2">Save Product</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Bulk CSV Import</div>
+                                <div class="admin-card-body">
+                                    <form action="{{ url_for('admin.bulk_upload') }}" method="POST" enctype="multipart/form-data">
+                                        <div class="alert alert-light border small text-secondary">
+                                            <strong>Required Columns:</strong> name, category, material_type, work_type, wholesale_price, moq, image
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label small fw-bold text-secondary">Upload CSV</label>
+                                            <input type="file" name="file" class="form-control" accept=".csv" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-dark w-100 py-2">Start Import</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: MARKET -->
+                <div id="view-market" class="admin-section">
+                    {% if current_user.role == 'admin' %}
+                    <div class="row g-4">
+
+                        <div class="col-md-4">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Top Categories</div>
+                                <div class="admin-card-body pt-0 px-0">
+                                    <div class="px-4 pb-2">
+                                        {% for item in top_categories %}
+                                        <div class="analytics-item">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <div class="analytics-name">
+                                                    <span class="analytics-rank">{{ loop.index }}</span>{{ item[0] }}
+                                                </div>
+                                                <div class="analytics-score">{{ item[1] }} <span class="text-tertiary fw-normal" style="font-size: 0.7rem;">PTS</span></div>
+                                            </div>
+                                            <div class="analytics-bar">
+                                                <div class="analytics-fill blue" style="width: {{ item[2] }}%"></div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Top Fabrics</div>
+                                <div class="admin-card-body pt-0 px-0">
+                                    <div class="px-4 pb-2">
+                                        {% for item in top_fabrics %}
+                                        <div class="analytics-item">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <div class="analytics-name">
+                                                    <span class="analytics-rank">{{ loop.index }}</span>{{ item[0] }}
+                                                </div>
+                                                <div class="analytics-score">{{ item[1] }} <span class="text-tertiary fw-normal" style="font-size: 0.7rem;">PTS</span></div>
+                                            </div>
+                                            <div class="analytics-bar">
+                                                <div class="analytics-fill gold" style="width: {{ item[2] }}%"></div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Target Work</div>
+                                <div class="admin-card-body pt-0 px-0">
+                                    <div class="px-4 pb-2">
+                                        {% for item in top_work_types %}
+                                        <div class="analytics-item">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <div class="analytics-name">
+                                                    <span class="analytics-rank">{{ loop.index }}</span>{{ item[0] }}
+                                                </div>
+                                                <div class="analytics-score">{{ item[1] }} <span class="text-tertiary fw-normal" style="font-size: 0.7rem;">PTS</span></div>
+                                            </div>
+                                            <div class="analytics-bar">
+                                                <div class="analytics-fill green" style="width: {{ item[2] }}%"></div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW: Inquiry Velocity Row -->
+                    <div class="row g-4 mt-2">
+                        <div class="col-12">
+                            <div class="admin-card">
+                                <div class="admin-card-header d-flex justify-content-between align-items-center">
+                                    <span>Inquiry Velocity (Last 7 Days)</span>
+                                    <span class="badge bg-light text-dark border fw-normal">Daily Leads</span>
+                                </div>
+                                <div class="admin-card-body pb-3">
+                                    <div class="d-flex justify-content-between align-items-end" style="height: 160px; padding: 0 15px; border-bottom: 2px solid #f8f9fa;">
+                                        {% for day, count in analytics.inquiry_trends %}
+                                        <div class="text-center" style="flex: 1; min-width: 0;">
+                                            <div class="text-secondary small mb-1 fw-bold" style="font-size: 0.65rem;">{{ count if count > 0 else '' }}</div>
+                                            <!-- Fix: Use percentage formula strictly and ensure min visible height for small data -->
+                                            {% set h_percent = (count / analytics.max_inquiry * 100) if analytics.max_inquiry > 0 else 0 %}
+                                            <div class="bar-transition" style="background: var(--primary-accent); height: {{ h_percent }}%; width: 24px; margin: 0 auto; border-radius: 4px 4px 0 0; min-height: {{ 4 if count > 0 else 0 }}px; transition: height 0.6s ease; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);"></div>
+                                            <div class="text-secondary mt-2" style="font-size: 0.65rem; white-space: nowrap;">{{ day }}</div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NEW: Efficiency & Insights -->
+                    <div class="row g-4 mt-2 mb-4">
+                        <div class="col-md-6">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Highest Converting Categories</div>
+                                <div class="admin-card-body px-4">
+                                    <div class="list-group list-group-flush">
+                                        {% for cat, rate in analytics.efficiency %}
+                                        <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-bottom px-0 py-3">
+                                            <div>
+                                                <div class="fw-bold">{{ cat }}</div>
+                                                <div class="text-secondary" style="font-size: 0.75rem;">Market Demand Efficiency</div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-success" style="font-size: 1.1rem;">{{ "%.1f"|format(rate or 0) }}%</div>
+                                                <div class="text-secondary" style="font-size: 0.7rem;">Conv. Rate</div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="admin-card h-100 border bg-white shadow-soft">
+                                <div class="admin-card-header bg-light-subtle border-bottom d-flex align-items-center">
+                                    <i class="fas fa-brain me-2 text-warning"></i> 
+                                    <span class="fw-bold">Smart Business Insights</span>
+                                </div>
+                                <div class="admin-card-body p-4">
+                                    <div class="row align-items-center mb-4">
+                                        <div class="col-auto">
+                                            <div class="rounded-circle border border-4 border-success d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                                <span class="fw-bold h5 mb-0">{{ analytics.inventory_health.percentage }}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="fw-bold" style="color: #222;">Stock Health: {{ analytics.inventory_health.status }}</div>
+                                            <div class="text-secondary small">Overall Inventory Movement</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="insight-icon bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                            <i class="fas fa-exclamation-triangle" style="font-size: 0.85rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold mb-1" style="color: #222;">Dead Stock Alert</div>
+                                            <p class="mb-0 text-secondary small"><strong>{{ analytics.dead_stock_count }} items</strong> have 0 inquiries despite high views. Clear these soon!</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-start">
+                                        <div class="insight-icon bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                            <i class="fas fa-bullseye" style="font-size: 0.85rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold mb-1" style="color: #222;">Strategic Goal</div>
+                                            <p class="mb-0 text-secondary small">Focus on <strong>{{ analytics.efficiency[0][0] if analytics.efficiency else 'current' }}</strong> category for next production cycle.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">Access Restricted</div>
+                    {% endif %}
+                </div>
+
+                <!-- SECTION: USERS -->
+                <div id="view-users" class="admin-section">
+                    {% if current_user.role == 'admin' %}
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">Add New User</div>
+                                <div class="admin-card-body">
+                                    <form action="{{ url_for('admin.admin') }}" method="POST">
+                                        <input type="hidden" name="create_user" value="true">
+                                        <div class="mb-3"><input type="text" name="new_username" class="form-control" placeholder="Username" required></div>
+                                        <div class="mb-3"><input type="password" name="new_password" class="form-control" placeholder="Password" required></div>
+                                        <div class="mb-3">
+                                            <select name="role" class="form-select">
+                                                <option value="sales">Sales Role</option>
+                                                <option value="admin">Administrator</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-dark w-100">Create Account</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="admin-card h-100">
+                                <div class="admin-card-header">User Accounts</div>
+                                <div class="admin-card-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        {% for user in all_users %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; font-weight: bold; color: var(--text-primary);">
+                                                    {{ user.username[0]|upper }}
+                                                </div>
+                                                <div>
+                                                    <span class="fw-bold d-block">{{ user.username }}</span>
+                                                    <span class="small text-secondary">{{ user.role|capitalize }}</span>
+                                                </div>
+                                            </div>
+                                            {% if user.id != current_user.id %}
+                                            <a href="{{ url_for('admin.delete_user', id=user.id) }}" class="btn btn-sm btn-outline-danger border-0" onclick="return confirm('Delete?');"><i class="fas fa-trash-alt"></i></a>
+                                            {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-card mt-4">
+                        <div class="admin-card-header">Activity Logs</div>
+                        <div class="table-container" style="max-height: 400px; overflow-y:auto;">
+                            <table class="inventory-table">
+                                <thead style="position: sticky; top:0; z-index:5;">
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in recent_activities %}
+                                    <tr>
+                                        <td class="text-secondary small">{{ log.activity_date.strftime('%d %b %H:%M') }}</td>
+                                        <td class="fw-bold">{{ log.username }}</td>
+                                        <td><span class="badge border text-dark fw-normal bg-light">{{ log.activity_type }}</span></td>
+                                        <td class="small">{{ log.details }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div> <!-- End Content Scroll Area -->
+        </main>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        function switchView(viewId, title, link) {
+            // Hide all
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-nav-link').forEach(el => el.classList.remove('active'));
+
+            // Show Target
+            document.getElementById('view-' + viewId).classList.add('active');
+            link.classList.add('active');
+            
+            // Update Header
+            document.getElementById('page-title').textContent = title;
+
+            // Persist
+            localStorage.setItem('adminView', JSON.stringify({id: viewId, title: title}));
+        }
+
+        async function toggleStock(element, productId) {
+            // Disable button during request
+            element.style.opacity = '0.5';
+            element.style.pointerEvents = 'none';
+
+            try {
+                const response = await fetch(`/toggle-stock/${productId}?ajax=1`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Update all buttons for this product ID (in case it appears in multiple tables)
+                    const allButtons = document.querySelectorAll(`button[onclick*="toggleStock(this, ${productId})"]`);
+                    
+                    allButtons.forEach(btn => {
+                        btn.textContent = result.new_status === 'READY' ? 'READY' : 'SOLD OUT';
+                        
+                        if (result.new_status === 'READY') {
+                            btn.classList.add('ready');
+                            btn.classList.remove('sold');
+                        } else {
+                            btn.classList.add('sold');
+                            btn.classList.remove('ready');
+                        }
+                        btn.style.opacity = '1';
+                        btn.style.pointerEvents = 'auto';
+                    });
+                } else {
+                    alert('Failed: ' + result.message);
+                    element.style.opacity = '1';
+                    element.style.pointerEvents = 'auto';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                element.style.opacity = '1';
+                element.style.pointerEvents = 'auto';
+            }
+        }
+
+        function filterInventory() {
+            const input = document.getElementById('inventorySearch').value.toUpperCase();
+            const rows = document.getElementById('inventoryTable').getElementsByTagName('tr');
+            for (let i = 1; i < rows.length; i++) {
+                const col = rows[i].getElementsByTagName('td')[0];
+                if (col) {
+                    rows[i].style.display = (col.textContent.toUpperCase().indexOf(input) > -1) ? "" : "none";
+                }
+            }
+        }
+
+        // Restore State
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = JSON.parse(localStorage.getItem('adminView'));
+            if (saved) {
+                const link = document.querySelector(`.sidebar-nav-link[onclick*="'${saved.id}'"]`);
+                if (link) switchView(saved.id, saved.title, link);
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

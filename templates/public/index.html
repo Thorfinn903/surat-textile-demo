@@ -1,0 +1,543 @@
+{% extends "layouts/base.html" %} 
+{% block content %}
+
+<style>
+  /* Homepage Specific Styles */
+  .cat-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 105px; /* Reduced ~12% for sleekness */
+    background: var(--bg-surface);
+    border-radius: 12px;
+    text-decoration: none;
+    color: white; /* Always white text on images */
+    font-weight: 700;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: var(--shadow-card);
+    letter-spacing: -0.5px;
+    background-size: cover;
+    background-position: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    border: 1px solid var(--border-subtle); /* Balanced border */
+  }
+  .cat-tile:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-elevated);
+    filter: brightness(1.1);
+    z-index: 10;
+    border-color: var(--accent);
+  }
+  
+  /* Ghost Card CTA - Elegant & Balanced */
+  .cat-tile.catalog-cta {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent) !important;
+    text-shadow: none;
+    box-shadow: none;
+  }
+  .cat-tile.catalog-cta:hover {
+    background: var(--accent);
+    color: var(--bg-body) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(253, 203, 110, 0.3);
+  }
+  
+  .collection-card {
+    display: block;
+    height: 220px; /* Increased to 220px for Banner look */
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: white !important;
+    box-shadow: var(--shadow-card);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .collection-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  }
+
+  /* FORCE Text Color for Light Mode Compatibility */
+  .collection-card h5,
+  .collection-card p,
+  .collection-card span {
+      color: white !important;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+
+  .collection-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 25px;
+    transition: background 0.3s ease;
+  }
+  
+  .collection-card:hover .collection-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 70%, transparent 100%);
+  }
+  
+  .collection-card:hover .fa-arrow-right {
+    transform: translateX(5px);
+    transition: transform 0.3s ease;
+  }
+
+  /* Premium Black Action Button */
+  .btn-action-black {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 14px 45px !important; /* Sleek sizing */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+  }
+  .btn-action-black:hover {
+    background-color: #000000 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  /* Floating WhatsApp Button */
+  .floating-whatsapp {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+  }
+  .floating-whatsapp:hover {
+    transform: scale(1.1);
+    background: #128C7E;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  @media (max-width: 768px) {
+    .floating-whatsapp {
+        bottom: 90px; /* Avoid overlap with mobile bottom nav */
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+    }
+  }
+</style>
+
+<!-- ============================================
+     ULTRA-B2B MOBILE HERO (High Conversion)
+     ============================================ -->
+<div class="b2b-hero-modern">
+  <!-- Dynamic Background with Overlay -->
+  <div class="b2b-hero-overlay"></div>
+  
+  <div class="container h-100 d-flex align-items-center">
+    <div class="hero-content-stack w-100 text-center text-md-start">
+      
+      <!-- Trust Indicator Tag -->
+      <div class="hero-trust-badge mb-3">
+        <span class="badge rounded-pill px-3 py-2">
+          <i class="fas fa-certificate text-warning me-2"></i> Surat's Largest Manufacturing Hub
+        </span>
+      </div>
+
+      <!-- Main Hook -->
+      <h1 class="hero-headline text-white mb-3">
+        Direct <span class="text-gold">Manufacturer Pricing</span> <br class="d-none d-md-block"> 
+        For Serious Resellers.
+      </h1>
+
+      <p class="hero-subheadline text-light mb-4 opacity-90 mx-auto mx-md-0">
+        Stop paying middleman margins. Access 5,000+ premium textile designs at factory-fixed rates.
+      </p>
+
+      <!-- Conversion Buttons -->
+      <div class="hero-cta-group d-flex flex-column d-md-flex flex-md-row gap-3 mb-5 justify-content-center justify-content-md-start">
+        <a href="{{ url_for('catalog.index') }}" class="btn btn-gold-premium py-3 rounded-4 fw-bold shadow-lg px-4">
+          <i class="fas fa-file-download me-2"></i> REQUEST BULK CATALOG
+        </a>
+        <a href="#featured-collections" class="btn btn-outline-light-glass py-3 rounded-4 fw-bold px-4">
+          EXPLORE COLLECTIONS
+        </a>
+      </div>
+
+      <!-- Trust Grid (Numbers) -->
+      <div class="hero-stats-row row g-3 text-white border-top border-white border-opacity-10 pt-4 mt-2">
+        <div class="col-6 col-md-3">
+          <div class="stat-item">
+            <div class="h4 fw-bold mb-0">2,500+</div>
+            <div class="small opacity-75">Retailers Served</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 border-start border-white border-opacity-10">
+          <div class="stat-item">
+            <div class="h4 fw-bold mb-0">20Yrs+</div>
+            <div class="small opacity-75">Market Expertise</div>
+          </div>
+        </div>
+        <div class="col-md-3 d-none d-md-block border-start border-white border-opacity-10">
+          <div class="stat-item">
+            <div class="h4 fw-bold mb-0">24Hr</div>
+            <div class="small opacity-75">Bulk Dispatch</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     B2B VALUE PROPOSITION (Themed)
+     ============================================ -->
+<div class="py-5" style="background: var(--bg-surface); border-bottom: 1px solid var(--border-light);">
+  <div class="container text-center">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-3">
+          <div class="mb-4">
+             <i class="fas fa-industry fa-2x" style="color: var(--accent); filter: drop-shadow(0 0 10px rgba(253, 203, 110, 0.2));"></i>
+          </div>
+          <h5 class="fw-bold mb-3">Manufacturer Direct</h5>
+          <p class="small" style="color: var(--text-tertiary); line-height: 1.6;">Eliminate middlemen margins. Get factory-direct rates delivered straight to your shop.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3">
+          <div class="mb-4">
+            <i class="fas fa-cubes fa-2x" style="color: var(--accent); filter: drop-shadow(0 0 10px rgba(253, 203, 110, 0.2));"></i>
+          </div>
+          <h5 class="fw-bold mb-3">Bulk Quality Assurance</h5>
+          <p class="small" style="color: var(--text-tertiary); line-height: 1.6;">Premium Surat textiles tested for scale. Consistent quality across every piece in your order.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-3">
+          <div class="mb-4">
+            <i class="fas fa-truck-loading fa-2x" style="color: var(--accent); filter: drop-shadow(0 0 10px rgba(253, 203, 110, 0.2));"></i>
+          </div>
+          <h5 class="fw-bold mb-3">Reseller Logistics</h5>
+          <p class="small" style="color: var(--text-tertiary); line-height: 1.6;">Dispatch within 24 hours with full GST invoicing and reliable transport support.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     CATEGORY TILES (Discovery)
+     ============================================ -->
+<div class="container py-4">
+  <div class="row g-3">
+    <!-- Sarees -->
+    <div class="col-6 col-md-3">
+       <a href="{{ url_for('catalog.index', category='Saree') }}" class="cat-tile" 
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Saree.jpg') }}');">
+         <span>Sarees</span>
+       </a>
+    </div>
+    <!-- Kurtis -->
+    <div class="col-6 col-md-3">
+       <a href="{{ url_for('catalog.index', category='Kurti') }}" class="cat-tile"
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Kurti.jpg') }}');">
+         <span>Kurtis</span>
+       </a>
+    </div>
+    <!-- Dress Materials -->
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('catalog.index', category='Dress Material') }}" class="cat-tile"
+          style="background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('{{ url_for('static', filename='images/Dress.webp') }}');">
+        <span>Dress Material</span>
+      </a>
+    </div>
+    <!-- View All -->
+    <div class="col-6 col-md-3">
+      <a href="{{ url_for('catalog.index') }}" class="cat-tile catalog-cta">
+        <span>View Full Catalog</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     FEATURED COLLECTIONS
+     ============================================ -->
+<div class="container pb-5">
+  <h4 class="fw-bold mb-4" style="letter-spacing: -0.5px;">Featured Collections</h4>
+  <div class="row g-4">
+    <!-- Festive Collection -->
+    <div class="col-md-4">
+      <a href="{{ url_for('catalog.index', work_type='Embroidery') }}" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/FestiveCollection.webp') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Festive Collection</h5>
+            <p class="small opacity-75 mb-2">Rich Zari Work • 24 Designs</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Premium Silk -->
+    <div class="col-md-4">
+      <a href="{{ url_for('catalog.index', material_type='Silk') }}" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/PremiumSilk.avif') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Premium Silk</h5>
+            <p class="small opacity-75 mb-2">Pure Banarasi & Soft Silk • 18 Designs</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Trending Now -->
+    <div class="col-md-4">
+      <a href="{{ url_for('catalog.index', sort='trending') }}" class="collection-card" 
+         style="background-image: url('{{ url_for('static', filename='images/TrendingNow.webp') }}');">
+        <div class="collection-overlay">
+          <div class="w-100">
+            <h5 class="fw-bold mb-1">Trending Now</h5>
+            <p class="small opacity-75 mb-2">Most Loved Styles • 30+ New</p>
+            <div class="d-flex align-items-center text-white">
+               <span class="fw-bold small text-uppercase me-2" style="letter-spacing: 1px;">Explore</span>
+               <i class="fas fa-arrow-right small"></i>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     NEW ARRIVALS (Preview Only)
+     ============================================ -->
+<div class="container pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0" style="letter-spacing: -0.5px;">New Arrivals</h4>
+    <a href="{{ url_for('catalog.index', sort='newest') }}" class="text-decoration-none fw-600" style="font-size: 0.9rem; color: var(--accent);">
+      View All <i class="fas fa-arrow-right ms-1"></i>
+    </a>
+  </div>
+
+  {% if products.total > 0 %}
+  <div class="feed-grid">
+    <!-- Show ONLY first 4 items from the first page -->
+    {% for product in products.items[:4] %}
+    <div class="b2b-modern-card"
+         data-id="{{ product.id + 1000 }}"
+         data-dno="{{ product.id + 1000 }}"
+         data-name="{{ product.name }}"
+         data-img="{{ url_for('static', filename='images/' + product.image) }}"
+         data-fabric="{{ product.material_type }}"
+         data-work="{{ product.work_type }}"
+         data-price="{{ product.wholesale_price or 0 }}"
+         data-moq="{{ product.moq or 4 }}"
+         data-stock="{{ product.stock_status or 'READY' }}"
+         onclick="openQuickView(this)">
+      
+      <!-- MOQ Badge (Over Image) -->
+      <div class="b2b-badge-moq">MOQ: {{ product.moq or 4 }}</div>
+
+      <div class="b2b-card-img-wrap">
+        <img
+          src="{{ url_for('static', filename='images/' + product.image) }}"
+          class="b2b-card-img"
+          alt="{{ product.name }}"
+          loading="lazy"
+        />
+        <!-- Stock Badges -->
+        {% if product.stock_status == 'SOLD OUT' %}
+        <span class="stock-badge stock-badge-sold">SOLD OUT</span>
+        {% else %}
+        <span class="stock-badge stock-badge-ready">READY</span>
+        {% endif %}
+      </div>
+
+      <div class="b2b-card-body">
+        <div class="b2b-card-title">{{ product.name }}</div>
+        
+        <div class="b2b-card-meta">
+          {% if product.wholesale_price %}
+            <span class="b2b-card-price">₹{{ product.wholesale_price }}/pc</span>
+          {% else %}
+            <span class="b2b-card-request-price">Request for Price</span>
+          {% endif %}
+        </div>
+
+        {% if product.stock_status == 'SOLD OUT' %}
+        <button class="btn btn-outline-secondary w-100 rounded-pill opacity-75 mt-2"
+            onclick="event.stopPropagation(); showToast('Sold Out: Opening Notify Me options...', 'warning'); openQuickView(this.closest('.b2b-modern-card'))"
+            data-stock="SOLD OUT">
+          <i class="fas fa-bell me-1"></i> Notify Me
+        </button>
+        {% else %}
+        <button class="btn btn-b2b-primary btn-add-cart"
+            onclick="event.stopPropagation(); toggleCart(this)"
+            data-id="{{ product.id + 1000 }}"
+            data-dno="{{ product.id + 1000 }}"
+            data-name="{{ product.name }}"
+            data-price="{{ product.wholesale_price or 0 }}"
+            data-moq="{{ product.moq or 4 }}"
+            data-stock="READY"
+            data-image="{{ url_for('static', filename='images/' + product.image) }}">
+          <i class="fas fa-file-invoice"></i> Add to Inquiry
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-4">
+    <p class="text-secondary">Catalog is updating...</p>
+  </div>
+  {% endif %}
+  
+  <div class="text-center mt-5">
+    <a href="{{ url_for('catalog.index') }}" class="btn rounded-pill fw-bold btn-action-black">
+      View Full Catalog <span class="opacity-50 fw-normal ms-1">({{ products.total }}+ items)</span>
+    </a>
+  </div>
+</div>
+
+
+<!-- ============================================
+     B2B TRUST & AUTHORITY SECTION
+     ============================================ -->
+<section class="b2b-trust-section">
+  <div class="container">
+    
+    <!-- Title -->
+    <div class="text-center mb-5">
+      <h2 class="fw-bold display-6 mb-2">Why 2,500+ Retailers Trust Us</h2>
+      <p class="text-secondary">Direct manufacturing, transparent policies, and nationwide reliability.</p>
+    </div>
+
+    <!-- Trust Pillars Grid -->
+    <div class="trust-pillar-grid">
+      <div class="trust-pillar-card">
+        <i class="fas fa-certificate pillar-icon"></i>
+        <h5 class="pillar-title">GST Verified</h5>
+        <p class="pillar-text">Fully compliant business with verified manufacturing license in Surat.</p>
+      </div>
+      <div class="trust-pillar-card">
+        <i class="fas fa-truck-fast pillar-icon"></i>
+        <h5 class="pillar-title">Pan-India Delivery</h5>
+        <p class="pillar-text">Fast door-step delivery to 150+ cities across India via trusted partners.</p>
+      </div>
+      <div class="trust-pillar-card">
+        <i class="fas fa-shield-halved pillar-icon"></i>
+        <h5 class="pillar-title">Defect Replacement</h5>
+        <p class="pillar-text">100% replacement guarantee for manufacturing defects within 7 days.</p>
+      </div>
+      <div class="trust-pillar-card">
+        <i class="fas fa-lock pillar-icon"></i>
+        <h5 class="pillar-title">Secure B2B Payments</h5>
+        <p class="pillar-text">Direct bank transfers, UPI, and structured payment terms for repeat buyers.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Statistics Strip -->
+  <div class="b2b-stat-strip">
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-3 stat-item">
+          <span class="stat-number">5,000+</span>
+          <span class="stat-label">Bulk Shipments</span>
+        </div>
+        <div class="col-6 col-md-3 stat-item">
+          <span class="stat-number">150+</span>
+          <span class="stat-label">Cities Served</span>
+        </div>
+        <div class="col-6 col-md-3 stat-item">
+          <span class="stat-number">25+</span>
+          <span class="stat-label">Years of Trust</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-5">
+    <div class="text-center mb-5">
+      <h3 class="fw-bold">Voiced by Real Retailers</h3>
+    </div>
+
+    <!-- Testimonials Grid -->
+    <div class="testimonial-grid">
+      <!-- Testimonial 1 -->
+      <div class="testimonial-card">
+        <i class="fas fa-quote-left quote-icon"></i>
+        <p class="testimonial-text">"The quality of sarees we get from this factory is unmatched. Their bulk pricing allows us to maintain a healthy 30% margin even in competitive markets like Nagpur."</p>
+        <div class="retailer-info">
+          <div class="retailer-avatar">RK</div>
+          <div class="retailer-details">
+            <h6>Rajesh Kumar</h6>
+            <p>Owner, RK Textiles, Nagpur</p>
+          </div>
+        </div>
+      </div>
+      <!-- Testimonial 2 -->
+      <div class="testimonial-card">
+        <i class="fas fa-quote-left quote-icon"></i>
+        <p class="testimonial-text">"Ordering from Surat used to be a headache until we found them. Their tracking is transparent, and the MOQ of 4 is perfect for testing new catalog designs."</p>
+        <div class="retailer-info">
+          <div class="retailer-avatar">SA</div>
+          <div class="retailer-details">
+            <h6>Sneha Agarwal</h6>
+            <p>Founder, Ethnic Hub, Jaipur</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Zoom Modal -->
+<div class="zoom-modal" id="zoom-modal" onclick="closeMacroZoom(event)">
+  <div class="zoom-modal-content" onclick="event.stopPropagation()">
+    <div class="zoom-modal-close" onclick="closeMacroZoom(event)">&times;</div>
+    <img id="zoom-modal-image" src="" alt="Zoom View" />
+    <div class="d-flex gap-2 mt-3 px-3 pb-3" id="zoom-modal-actions"></div>
+  </div>
+</div>
+
+<script>
+  // Index page specific logic (if any)
+</script>
+
+{% endblock %}

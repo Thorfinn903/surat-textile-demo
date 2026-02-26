@@ -1,0 +1,83 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="login-page-wrapper">
+  <div class="login-split-container">
+    
+    <!-- LEFT: Visual Side — Desktop Only (hidden on mobile) -->
+    <div class="login-visual-side" id="login-visual">
+      <div class="visual-overlay"></div>
+      <div class="visual-content">
+        <h1 class="visual-logo">Digital Dukan</h1>
+        <div class="visual-divider"></div>
+        <p class="visual-tagline">The Operating System for<br>Surat's Textile Trade</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Login Form Side -->
+    <div class="login-form-side" id="login-form-side">
+      <div class="login-form-content">
+        
+        <!-- Header -->
+        <div class="login-header">
+          <h2 class="login-title" id="login-title">Log in to Digital Dukan</h2>
+          <p class="login-subtitle">The Operating System for Surat's Textile Trade</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="login-alert" id="login-alert" role="alert">
+              <i class="fas fa-exclamation-circle me-2"></i> {{ messages[0] }}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Login Form -->
+        <form action="/login" method="POST" autocomplete="off" id="login-form">
+          
+          <!-- Username — Floating Label Field -->
+          <div class="modern-field mb-3">
+            <label for="login-username" class="modern-label">Username</label>
+            <input 
+              type="text" 
+              name="username" 
+              id="login-username" 
+              class="modern-input" 
+              placeholder="Enter your username" 
+              required 
+              autofocus
+            >
+          </div>
+
+          <!-- Password — Floating Label Field -->
+          <div class="modern-field mb-4">
+            <label for="login-password" class="modern-label">Password</label>
+            <input 
+              type="password" 
+              name="password" 
+              id="login-password" 
+              class="modern-input" 
+              placeholder="Enter your password" 
+              required
+            >
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="login-btn-black w-100" id="login-submit-btn">
+            Continue <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </form>
+
+        <!-- Footer Links -->
+        <div class="login-footer-links">
+          <!-- <a href="#" id="forgot-password-link">Forgot password?</a>
+          <span class="footer-dot"></span> -->
+          <a href="/contact" id="contact-support-link">Contact Support</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

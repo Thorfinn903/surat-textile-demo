@@ -1,0 +1,397 @@
+
+<!-- ============================================
+     OFF-CANVAS SIDEBAR (MOBILE MENU)
+     ============================================ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel" style="width: 280px; border-top-left-radius: 16px; border-bottom-left-radius: 16px;">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-bold" id="offcanvasMenuLabel" style="font-family: 'Playfair Display', serif;">{{ shop_settings.shop_name }}</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <div class="list-group list-group-flush">
+      <a href="/" class="list-group-item list-group-item-action py-3 px-4 border-bottom-0"><i class="fas fa-home me-3 text-secondary" style="width: 20px;"></i>Home</a>
+      <a href="/catalog" class="list-group-item list-group-item-action py-3 px-4 border-bottom-0"><i class="fas fa-th-large me-3 text-secondary" style="width: 20px;"></i>Browse Catalog</a>
+      <a href="/about" class="list-group-item list-group-item-action py-3 px-4 border-bottom-0"><i class="fas fa-industry me-3 text-secondary" style="width: 20px;"></i>Factory Profile</a>
+      <a href="/contact" class="list-group-item list-group-item-action py-3 px-4 border-bottom-0"><i class="fas fa-phone-alt me-3 text-secondary" style="width: 20px;"></i>Contact Sales</a>
+    </div>
+    <div class="mt-auto p-4 border-top bg-light">
+      {% if current_user.is_authenticated %}
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div>
+            <div class="fw-bold">{{ current_user.username }}</div>
+            <div class="text-muted small">Admin Dashboard</div>
+          </div>
+        </div>
+        <a href="/logout" class="btn btn-outline-danger w-100 btn-sm">Logout Session</a>
+      {% else %}
+        <a href="/login" class="text-decoration-none text-muted small d-block text-center mb-2">Internal Staff Login</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     CART MODAL (B2B INQUIRY FUNNEL)
+     ============================================ -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content b2b-funnel-content" style="border-radius: 24px;">
+      
+      <!-- Step 1 & 2: Review List -->
+      <div id="funnel-step-list">
+        <div class="modal-header border-bottom-0 pb-0">
+          <h5 class="modal-title fw-bold">Review Inquiry List</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-2" id="cart-modal-body">
+          <!-- Cart items injected here via JS -->
+        </div>
+        <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+          <button type="button" class="btn btn-dark w-100 py-3 rounded-4 fw-bold shadow-sm" id="btn-to-form" onclick="cartManager.goToForm()">
+            CONTINUE TO BUSINESS DETAILS <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Business Details Form -->
+      <div id="funnel-step-form" style="display: none;">
+        <div class="modal-header border-bottom-0 pb-0">
+          <button type="button" class="btn btn-link text-dark p-0 me-3" onclick="cartManager.goBackToList()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <h5 class="modal-title fw-bold">Business Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted mb-4">Manufacturer direct pricing requires business verification. Please provide your shop details.</p>
+          <form id="b2b-inquiry-form">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-uppercase">Your Name</label>
+              <input type="text" class="form-control rounded-3" id="inquiry-name" placeholder="Enter Full Name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-uppercase">Shop / Company Name</label>
+              <input type="text" class="form-control rounded-3" id="inquiry-shop" placeholder="e.g. Surat Textiles Ltd." required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-uppercase">City / Location</label>
+              <input type="text" class="form-control rounded-3" id="inquiry-location" placeholder="e.g. Mumbai, Maharashtra" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
+          <button type="button" class="btn btn-gold w-100 py-3 rounded-4 fw-bold shadow-sm" onclick="cartManager.submitInquiry()">
+            SUBMIT WHOLESALE INQUIRY <i class="fas fa-paper-plane ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Success & Confirmation -->
+      <div id="funnel-step-success" style="display: none;">
+        <div class="modal-body text-center py-5">
+          <div class="mb-4">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2.5rem;">
+              <i class="fas fa-check"></i>
+            </div>
+          </div>
+          <h4 class="fw-bold mb-3">Inquiry Sent Successfully!</h4>
+          <p class="text-secondary mb-5">Our sales team from <strong>Surat</strong> will contact you shortly with bulk pricing and stock availability.</p>
+          
+          <div class="d-flex flex-column gap-3 px-3">
+            <button class="btn btn-whatsapp-premium py-3 rounded-4 fw-bold shadow-sm" onclick="cartManager.sendToWhatsApp()">
+              <i class="fab fa-whatsapp me-2" style="font-size: 1.2rem;"></i> START WHATSAPP CHAT
+            </button>
+            <a href="tel:{{ shop_settings.contact_number }}" class="btn btn-outline-dark py-3 rounded-4 fw-bold">
+              <i class="fas fa-phone-alt me-2"></i> CALL SALES OFFICE
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     CART FLOATING BUTTON (FAB)
+     ============================================ -->
+<button
+  class="cart-fab"
+  id="cart-fab"
+  onclick="cartManager.openModal()"
+  aria-label="View Inquiry List"
+>
+  <i class="fas fa-file-invoice"></i>
+  <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+</button>
+
+<style>
+  /* B2B Funnel Styling */
+  .b2b-funnel-content {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-elevated);
+  }
+
+  .cart-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    box-shadow: var(--shadow-strong);
+    z-index: 1040;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  @media(min-width: 768px) {
+    .cart-fab { display: flex; }
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #000;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-surface);
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .cart-item:last-child { border-bottom: none; }
+  .cart-item-img {
+    width: 50px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--bg-subtle);
+  }
+  .cart-item-info {
+    flex: 1;
+    padding-left: 12px;
+  }
+  .cart-item-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+</style>
+
+<script>
+  /**
+   * CartManager - High-Converting B2B Funnel Logic
+   */
+  const cartManager = {
+    key: 'inquiry_cart',
+    items: [],
+    whatsappNumber: '{{ shop_settings.contact_number }}',
+
+    init() {
+      this.load();
+      this.updateUI();
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-add-cart');
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.toggleItem(btn);
+        }
+      });
+    },
+
+    load() {
+      const stored = localStorage.getItem(this.key);
+      if (stored) {
+        try { this.items = JSON.parse(stored); } catch (e) { this.items = []; }
+      }
+    },
+
+    save() {
+      localStorage.setItem(this.key, JSON.stringify(this.items));
+      this.updateUI();
+    },
+
+    addItem(product) {
+      if (!this.items.some(i => i.id === product.id)) {
+        this.items.push(product);
+        this.save();
+        if (typeof trackInquiry === 'function') trackInquiry(product.id);
+      }
+    },
+
+    removeItem(id) {
+      this.items = this.items.filter(i => i.id !== id);
+      this.save();
+    },
+
+    toggleItem(btn) {
+      if (!btn || !btn.dataset) return;
+      
+      const stock = btn.dataset.stock;
+      if (stock === 'SOLD OUT') {
+        if (typeof showToast === 'function') {
+            showToast("This design is currently Sold Out. Check the 'Notify me' option in Quick View.", "warning");
+        }
+        return;
+      }
+
+      const product = {
+        id: btn.dataset.id,
+        name: btn.dataset.name,
+        image: btn.dataset.image,
+        moq: btn.dataset.moq || 4,
+        price: btn.dataset.price || 0
+      };
+
+      if (this.items.some(i => i.id === product.id)) {
+        this.removeItem(product.id);
+        if (typeof showToast === 'function') showToast("Removed from Inquiry Bag", "info");
+      } else {
+        this.addItem(product);
+        if (typeof showToast === 'function') showToast("Added to Inquiry Bag!", "success");
+        const fab = document.getElementById('cart-fab');
+        if(fab) {
+          fab.style.transform = 'scale(1.2)';
+          setTimeout(() => fab.style.transform = '', 200);
+        }
+      }
+    },
+
+    updateUI() {
+      const count = this.items.length;
+      const badge = document.getElementById('cart-badge');
+      const mobileBadge = document.getElementById('mobile-nav-badge');
+
+      if(badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+      if(mobileBadge) { mobileBadge.textContent = count; mobileBadge.style.display = count > 0 ? 'flex' : 'none'; }
+
+      document.querySelectorAll('.btn-add-cart').forEach(btn => {
+        const isInCart = this.items.some(i => i.id === btn.dataset.id);
+        if (isInCart) {
+          btn.innerHTML = '<i class="fas fa-check me-1"></i> Added to List';
+          btn.classList.add('active-b2b');
+        } else {
+          btn.innerHTML = '<i class="fas fa-file-invoice me-1"></i> Add to Inquiry';
+          btn.classList.remove('active-b2b');
+        }
+      });
+    },
+
+    openModal() {
+      this.resetFunnel();
+      this.renderList();
+      const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+      modal.show();
+    },
+
+    renderList() {
+      const modalBody = document.getElementById('cart-modal-body');
+      const btnToForm = document.getElementById('btn-to-form');
+      
+      if (this.items.length === 0) {
+        modalBody.innerHTML = `
+          <div class="text-center py-5">
+             <i class="fas fa-file-invoice mb-3" style="font-size: 3.5rem; color: var(--accent); opacity: 0.15;"></i>
+             <h6 class="fw-bold" style="color: var(--text-primary);">Your list is empty</h6>
+             <p class="small" style="color: var(--text-tertiary);">Add some designs to start an inquiry.</p>
+          </div>
+        `;
+        btnToForm.style.display = 'none';
+      } else {
+        modalBody.innerHTML = this.items.map(item => `
+          <div class="cart-item">
+            <img src="${item.image}" class="cart-item-img" alt="${item.name}">
+            <div class="cart-item-info">
+              <div class="cart-item-title">${item.name}</div>
+              <div class="small text-muted">D.No: ${item.id} · MOQ: ${item.moq}</div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm border-0 ms-auto" 
+                    style="width: 36px; height: 36px; border-radius: 10px;"
+                    onclick="cartManager.removeItem('${item.id}'); cartManager.renderList()"
+                    aria-label="Remove item">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        `).join('');
+        btnToForm.style.display = 'block';
+      }
+    },
+
+    resetFunnel() {
+        document.getElementById('funnel-step-list').style.display = 'block';
+        document.getElementById('funnel-step-form').style.display = 'none';
+        document.getElementById('funnel-step-success').style.display = 'none';
+    },
+
+    goToForm() {
+        document.getElementById('funnel-step-list').style.display = 'none';
+        document.getElementById('funnel-step-form').style.display = 'block';
+    },
+
+    goBackToList() {
+        document.getElementById('funnel-step-form').style.display = 'none';
+        document.getElementById('funnel-step-list').style.display = 'block';
+    },
+
+    submitInquiry() {
+        const name = document.getElementById('inquiry-name').value;
+        const shop = document.getElementById('inquiry-shop').value;
+        const location = document.getElementById('inquiry-location').value;
+
+        if(!name || !shop || !location) {
+            alert('Please fill in all business details.');
+            return;
+        }
+
+        this.businessData = { name, shop, location };
+        
+        // Show Success Step
+        document.getElementById('funnel-step-form').style.display = 'none';
+        document.getElementById('funnel-step-success').style.display = 'block';
+    },
+
+    sendToWhatsApp() {
+      const data = this.businessData || {};
+      const designNumbers = this.items.map(i => i.id).join(', ');
+      
+      const message = `*B2B WHOLESALE INQUIRY*\n\n` +
+                      `*From:* ${data.name || 'Reseller'}\n` +
+                      `*Shop:* ${data.shop || 'N/A'}\n` +
+                      `*Location:* ${data.location || 'N/A'}\n\n` +
+                      `*Designs Required:* ${designNumbers}\n\n` +
+                      `I am interested in bulk factory rates and catalog for the above designs. Please provide stock availability.`;
+
+      const sanitizedNumber = this.whatsappNumber.replace(/[^0-9]/g, '');
+      const url = `https://wa.me/${sanitizedNumber}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => cartManager.init());
+  function toggleCart(btn) { cartManager.toggleItem(btn); }
+</script>
