@@ -7,7 +7,7 @@ echo "Starting Digital Dukan Backend..."
 
 # Apply database migrations
 echo "Applying migrations..."
-export FLASK_APP=app.py
+export FLASK_APP=wsgi.py
 flask db upgrade || {
     echo "Migration failed, falling back to manual table creation (This is normal on first run if no migrations exist)"
     # This might happen if migration folder is not complete, 
@@ -16,4 +16,4 @@ flask db upgrade || {
 
 # Start the application
 echo "Launching Gunicorn..."
-gunicorn --config gunicorn_config.py app:app
+gunicorn --config gunicorn_config.py wsgi:app

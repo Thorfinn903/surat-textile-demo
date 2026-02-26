@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-ENV FLASK_APP app.py
+ENV FLASK_APP wsgi.py
 ENV FLASK_ENV production
 
 # Set work directory
