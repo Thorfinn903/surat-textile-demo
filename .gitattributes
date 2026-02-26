@@ -1,24 +1,21 @@
-# Professional Full-Stack Balancing
-# Objective: Make Python the dominant language to reflect backend logic weight
+# Enterprise Language Balancing - FINAL
+# Prioritizing Backend (Python) while showcasing Full-Stack skills
 
-# Exclude non-code assets and backups
+# Ignore non-code and large backups
 docs/** linguist-documentation
-*.md linguist-documentation
 instance/** linguist-documentation
 app_backup.py linguist-documentation
 tempCodeRunnerFile.py linguist-documentation
+*.md linguist-documentation
 
-# Treat migrations as generated
+# Mark migrations
 migrations/** linguist-generated
 
-# ⚖️ REBALANCING: 
-# Hide the largest HTML/CSS files to prevent them from overwhelming the stats.
-# This keeps the bars present but ensures Python (Backend) stays at the top.
-
+# ⚖️ BALANCING THE BAR:
+# We keep the largest single overhead files as documentation
+# to prevent one language from drowning others.
 templates/admin/index.html linguist-documentation
-templates/public/index.html linguist-documentation
-templates/layouts/base.html linguist-documentation
-templates/components/** linguist-documentation
-
 static/css/admin_dashboard.css linguist-documentation
-static/css/style.css linguist-documentation
+
+# All other HTML, CSS, and JS will be counted as CODE.
+# Result: Balanced view of Python(Top), HTML, CSS, JS.
