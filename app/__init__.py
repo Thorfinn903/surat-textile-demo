@@ -3,6 +3,7 @@ from flask import Flask
 from .extensions import db, login_manager, migrate, cors, cache, socketio, init_celery, limiter
 from .utils.helpers import load_settings
 from .models import User, Product, ActivityLog, InquiryLog
+from .utils.seeder import seed_database
 from .context_processors import inject_global_template_data
 from .config import config_dict
 
@@ -85,4 +86,12 @@ def create_app(config_name=None):
         db.create_all()
         pass
 
+    # Initialize Seeder (Auto-data on first run)
+    with app.app_context():
+        try:
+            db.create_all() # Ensure tables exist
+            seed_database()
+        except Exception as e:
+            app.logger.error(f"Seeding failed: {e}")
+            
     return app
