@@ -1,22 +1,21 @@
 import multiprocessing
 import os
 
-# Server socket
-bind = "0.0.0.0:5000"
-backlog = 2048
+# Gunicorn configuration for Render Free Tier (512MB RAM)
+bind = "0.0.0.0:" + os.environ.get("PORT", "5000")
 
-# Worker processes
-# Recommended: (2 * cores) + 1
-workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = 'eventlet' # Required for SocketIO
-worker_connections = 1000
-timeout = 30
+# Reduce workers to save memory on 512MB RAM limit
+workers = 2
+threads = 4
+
+# Use gthread for better memory management than eventlet/gevent on low-RAM
+worker_class = "gthread"
+
+# Timeout settings
+timeout = 120
 keepalive = 2
 
 # Logging
-accesslog = "-" # Stdout
-errorlog = "-"  # Stderr
+accesslog = "-"
+errorlog = "-"
 loglevel = "info"
-
-# Process naming
-proc_name = "surat_textile_nexus"
