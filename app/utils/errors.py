@@ -6,7 +6,7 @@ def register_error_handlers(app):
     def handle_404(e):
         if request.path.startswith('/api/'):
             return error_response(message="Resource not found", status_code=404)
-        return render_template('public/index.html'), 404 # Or a 404 page if available
+        return "Not Found", 404
 
     @app.errorhandler(403)
     def handle_403(e):
@@ -24,4 +24,4 @@ def register_error_handlers(app):
     def handle_500(e):
         if request.path.startswith('/api/'):
             return error_response(message="An unexpected server error occurred", status_code=500)
-        return render_template('public/index.html'), 500
+        return "Internal Server Error", 500
