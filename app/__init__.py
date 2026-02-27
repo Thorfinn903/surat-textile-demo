@@ -86,12 +86,13 @@ def create_app(config_name=None):
         db.create_all()
         pass
 
-    # Initialize Seeder (Auto-data on first run)
-    with app.app_context():
-        try:
-            db.create_all() # Ensure tables exist
-            seed_database()
-        except Exception as e:
-            app.logger.error(f"Seeding failed: {e}")
+    # Initialize Seeder (Only in dev or if forced)
+    if app.config.get('ENV') != 'production':
+        with app.app_context():
+            try:
+                db.create_all() 
+                seed_database()
+            except Exception as e:
+                app.logger.error(f"Seeding failed: {e}")
             
     return app

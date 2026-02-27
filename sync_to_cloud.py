@@ -1,6 +1,5 @@
 import os
 import sys
-from sqlalchemy import create_all
 from app import create_app
 from app.extensions import db
 from app.models import Product, User, InquiryLog, ActivityLog
@@ -65,7 +64,7 @@ def sync():
             db.session.add(Product(**p_data))
         
         db.session.commit()
-        print("✅ SYNC COMPLETE! Cloud database is now an exact copy of your Local SQLite.")
+        print("SUCCESS: SYNC COMPLETE! Cloud database is now an exact copy of your Local SQLite.")
 
 if __name__ == "__main__":
     sync()
