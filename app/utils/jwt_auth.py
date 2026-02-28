@@ -1,53 +1,90 @@
 import jwt
 import datetime
-from flask import current_app, request, jsonify, abort
+from flask import current_app, request, g
 from functools import wraps
 from ..models import User
+from .responses import error_response
 
-def generate_token(user_id):
+def generate_tokens(user_id, role):
     """
-    Generates a JWT token for a user.
+    Generates short-lived Access Token (1 hour) and a Refresh Token (7 days).
     """
     try:
-        payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        # Access Token
+        access_payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
             'iat': datetime.datetime.utcnow(),
-            'sub': user_id
+            'sub': str(user_id),
+            'role': role,
+            'type': 'access'
         }
-        return jwt.encode(
-            payload,
+        access_token = jwt.encode(
+            access_payload,
             current_app.config.get('SECRET_KEY'),
             algorithm='HS256'
         )
+
+        # Refresh Token
+        refresh_payload = {
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
+            'iat': datetime.datetime.utcnow(),
+            'sub': str(user_id),
+            'type': 'refresh'
+        }
+        refresh_token = jwt.encode(
+            refresh_payload,
+            current_app.config.get('SECRET_KEY'),
+            algorithm='HS256'
+        )
+
+        return {
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }
     except Exception as e:
-        return str(e)
+        return None
 
-def token_required(f):
+def token_required(roles=None):
     """
-    Decorator for routes that requires a valid JWT token.
+    Decorator for API endpoints to enforce JWT and Role based security.
     """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+            if 'Authorization' in request.headers:
+                auth_header = request.headers['Authorization']
+                try:
+                    token = auth_header.split(" ")[1]
+                except IndexError:
+                    return error_response(message='Bearer token malformed', status_code=401)
+
+            if not token:
+                return error_response(message='Token is missing', status_code=401)
+
             try:
-                token = auth_header.split(" ")[1]
-            except IndexError:
-                return jsonify({'message': 'Bearer token malformed'}), 401
+                payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
+                
+                if payload.get('type') != 'access':
+                    return error_response(message='Invalid token type. Expected access token.', status_code=401)
+                
+                user_id = payload['sub']
+                user_role = payload.get('role')
+                
+                if roles and user_role not in roles:
+                    return error_response(message='Insufficient permissions. Admin role required.', status_code=403)
+                
+                # Expose safely
+                g.current_user_id = user_id
+                g.current_user_role = user_role
+                
+            except jwt.ExpiredSignatureError:
+                return error_response(message='Token expired. Please use refresh token.', status_code=401)
+            except jwt.InvalidTokenError as e:
+                print("JWT INVALID TOKEN ERROR:", str(e))
+                return error_response(message='Invalid token. Please authenticate.', status_code=401)
 
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
+            return f(*args, **kwargs)
 
-        try:
-            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
-            current_user_id = payload['sub']
-            # Optionally attach user to request or verify existence
-        except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Token expired. Please log in again.'}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({'message': 'Invalid token. Please log in again.'}), 401
-
-        return f(*args, **kwargs)
-
-    return decorated
+        return decorated
+    return decorator

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+.env
+.git/
+.vscode/
+.github/
+.pytest_cache/
+tests/
+instance/
+postgres_data/

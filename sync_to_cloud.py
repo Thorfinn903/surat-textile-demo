@@ -3,32 +3,39 @@ import sys
 from app import create_app
 from app.extensions import db
 from app.models import Product, User, InquiryLog, ActivityLog
-from sqlalchemy import inspect
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
 def sync():
     # 1. Create Local App Context to read SQLite
-    local_app = create_app('development')
-    
     print("Reading data from Local SQLite...")
-    with local_app.app_context():
-        local_products = Product.query.all()
-        # Convert to list of dicts, removing internal state
-        products_data = []
-        for p in local_products:
-            p_dict = {c.key: getattr(p, c.key) for c in inspect(p).mapper.column_attrs}
-            # Remove ID to let Postgres auto-increment or keep it? 
-            # Better to keep IDs if they are referenced elsewhere, but for now we'll let Postgres handle it
-            if 'id' in p_dict: del p_dict['id']
-            products_data.append(p_dict)
+    
+    # Connect directly to old SQLite DB
+    sqlite_engine = create_engine('sqlite:///instance/textile.db')
+    SqliteSession = sessionmaker(bind=sqlite_engine)
+    sqlite_session = SqliteSession()
+
+    # Manual raw queries to grab the data safely without context conflicts
+    users_data_raw = sqlite_session.execute(text("SELECT id, username, password, role FROM user")).fetchall()
+    products_data_raw = sqlite_session.execute(text("SELECT name, design_no, category, material_type, work_type, color, image_file, wholesale_price, moq, stock_status, stock_count, views, whatsapp_clicks FROM product")).fetchall()
+    
+    users_data = []
+    for u in users_data_raw:
+        users_data.append({
+            'id': u[0], 'username': u[1], 'password': u[2], 'role': u[3]
+        })
         
-        local_users = User.query.all()
-        users_data = []
-        for u in local_users:
-            u_dict = {c.key: getattr(u, c.key) for c in inspect(u).mapper.column_attrs}
-            if 'id' in u_dict: u_dict.pop('id')
-            users_data.append(u_dict)
+    products_data = []
+    for p in products_data_raw:
+        products_data.append({
+            'name': p[0], 'design_no': p[1], 'category': p[2], 'material_type': p[3], 
+            'work_type': p[4], 'color': p[5], 'image_file': p[6], 'wholesale_price': p[7], 
+            'moq': p[8], 'stock_status': p[9], 'stock_count': p[10], 'views': p[11], 
+            'whatsapp_clicks': p[12]
+        })
 
     print(f"Found {len(products_data)} products and {len(users_data)} users in Local DB.")
+    sqlite_session.close()
 
     # 2. Connect to Cloud Postgres
     cloud_url = os.environ.get('RENDER_POSTGRES_URL')

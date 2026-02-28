@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from ...utils.file_helpers import optimize_image
 
 
+@cache.memoize(timeout=60)
 def get_admin_stats():
     total_skus = Product.query.count()
     sold_out_count = Product.query.filter(Product.stock_status == 'SOLD OUT').count()
@@ -20,6 +21,7 @@ def get_admin_stats():
         'ready_stock_count': ready_stock_count
     }
 
+@cache.memoize(timeout=60)
 def get_performance_analytics():
     def get_monthly_stats(group_by_col):
         return db.session.query(
@@ -143,8 +145,6 @@ def add_product_service(form_data, image_file, user_id, username):
         save_path = upload_folder / filename
         image_file.save(str(save_path))
 
-        optimized_name = optimize_image(save_path)
-
         new_product = Product(
             name=name,
             category=category,
@@ -152,11 +152,15 @@ def add_product_service(form_data, image_file, user_id, username):
             material_type=material_type,
             wholesale_price=wholesale_price,
             moq=moq,
-            image_file=optimized_name,
+            image_file=filename,
             stock_status='READY',
             design_no='AUTO'
         )
         db.session.add(new_product)
+        db.session.flush() # To get the new_product.id
+
+        from ...tasks import process_image_task
+        process_image_task.delay(new_product.id, str(save_path))
 
         activity = ActivityLog(
             user_id=user_id,
@@ -167,7 +171,11 @@ def add_product_service(form_data, image_file, user_id, username):
         )
         db.session.add(activity)
         db.session.commit()
-        return True, f'Product "{name}" added successfully!'
+        
+        # Invalidate cache
+        cache.clear()
+        
+        return True, f'Product "{name}" added successfully! Image is being optimized.'
     return False, 'Please fill all fields and upload an image.'
 
 def create_new_user(username, password, role, creator_id, creator_name):
@@ -208,12 +216,21 @@ def toggle_product_stock(product_id, user_id, username):
     # Force clear cache so Trending/Analytics show updated status immediately
     cache.clear() 
     
+    from ...extensions import socketio
+    socketio.emit('stock_updated', {
+        'product_id': product.id,
+        'product_name': product.name,
+        'new_status': product.stock_status,
+        'message': f"Stock updated for {product.name} (D.No: {product.id + 1000}) to {product.stock_status}"
+    }, to='admin_room')
+    
     return product
 
 def delete_product_service(product_id):
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()
+    cache.clear()
     return True
 
 def delete_user_service(user_id):
@@ -243,6 +260,7 @@ def process_bulk_upload_service(file):
         db.session.add(new_product)
         count += 1
     db.session.commit()
+    cache.clear()
     return True, f'Uploaded {count} products.'
 
 def setup_initial_admin():

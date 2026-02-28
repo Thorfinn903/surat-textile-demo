@@ -12,11 +12,12 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = db_url
     SECRET_KEY = os.environ.get('SECRET_KEY')
     
-    # PythonAnywhere Fallback: Use SimpleCache if Redis is not available
-    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'SimpleCache')
     REDIS_URL = os.environ.get('REDIS_URL', None)
     
-    if not REDIS_URL:
+    if REDIS_URL:
+        CACHE_TYPE = os.environ.get('CACHE_TYPE', 'RedisCache')
+        CACHE_REDIS_URL = REDIS_URL
+    else:
         CACHE_TYPE = 'SimpleCache'
         CELERY_BROKER_URL = None
         CELERY_RESULT_BACKEND = None

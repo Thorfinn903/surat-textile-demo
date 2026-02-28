@@ -5,6 +5,11 @@ set -e
 
 echo "Starting Digital Dukan Backend..."
 
+# Need to wait for postgres daemon to initialize
+echo "Waiting 5 seconds for PostgreSQL to start..."
+sleep 5
+echo "Proceeding..."
+
 # Apply database migrations
 echo "Applying migrations..."
 export FLASK_APP=wsgi.py

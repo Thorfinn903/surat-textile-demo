@@ -617,8 +617,71 @@
         </main>
     </div>
 
+    <!-- Socket.IO Integration for Live Admin Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        <div id="liveNotificationToast" class="toast align-items-center text-white bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center">
+                    <i class="fas fa-bell me-2 text-warning" id="toastIcon"></i>
+                    <span id="toastMessage" class="fw-bold" style="font-size: 0.9rem;">Notification</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <!-- JS Logic -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
+        const socket = io();
+
+        // Join admin room
+        socket.on('connect', () => {
+            console.log('Connected to real-time server');
+            socket.emit('join_admin_room');
+        });
+
+        const showLiveNotification = (message, type) => {
+            const toastElement = document.getElementById('liveNotificationToast');
+            document.getElementById('toastMessage').textContent = message;
+            
+            const icon = document.getElementById('toastIcon');
+            const toastBox = toastElement;
+            
+            if (type === 'inquiry') {
+                icon.className = 'fas fa-envelope me-2 text-primary';
+                toastBox.classList.replace('bg-dark', 'bg-white');
+                toastBox.classList.remove('text-white');
+            } else {
+                icon.className = 'fas fa-box me-2 text-warning';
+                toastBox.classList.replace('bg-white', 'bg-dark');
+                toastBox.classList.add('text-white');
+            }
+
+            const toast = new bootstrap.Toast(toastElement, {delay: 5000});
+            toast.show();
+        };
+
+        socket.on('new_inquiry', (data) => {
+            showLiveNotification(data.message, 'inquiry');
+        });
+
+        socket.on('stock_updated', (data) => {
+            showLiveNotification(data.message, 'stock');
+            // If the stock status changes from another admin/window, update the UI locally
+            const buttons = document.querySelectorAll(`button[onclick*="toggleStock(this, ${data.product_id})"]`);
+            buttons.forEach(btn => {
+                btn.textContent = data.new_status === 'READY' ? 'READY' : 'SOLD OUT';
+                if (data.new_status === 'READY') {
+                    btn.classList.add('ready');
+                    btn.classList.remove('sold');
+                } else {
+                    btn.classList.add('sold');
+                    btn.classList.remove('ready');
+                }
+            });
+        });
+
         function switchView(viewId, title, link) {
             // Hide all
             document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));

@@ -41,6 +41,10 @@ def create_app(config_name=None):
     init_celery(app)
     limiter.init_app(app)
     
+    # Import tasks so celery discovers them
+    with app.app_context():
+        from . import tasks
+    
     # Initialize Swagger
     from flasgger import Swagger
     app.config['SWAGGER'] = {

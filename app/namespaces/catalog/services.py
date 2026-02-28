@@ -2,6 +2,7 @@ from ...models import Product, InquiryLog, db
 from ...extensions import cache
 from datetime import datetime, date
 
+@cache.memoize(timeout=60)
 def get_filtered_products(search_query='', category='All', work_type='All', material_type='All', sort_by='newest', page=1, per_page=20):
     products_query = Product.query
     
@@ -63,6 +64,14 @@ def track_product_inquiry(product_id, session):
         inquiry_log = InquiryLog(product_id=product_id, inquiry_date=datetime.utcnow())
         db.session.add(inquiry_log)
         db.session.commit()
+        
+        from ...extensions import socketio
+        socketio.emit('new_inquiry', {
+            'product_id': product.id,
+            'product_name': product.name,
+            'message': f"New inquiry for {product.name} (D.No: {product.id + 1000})"
+        }, to='admin_room')
+        
         return True, "Tracked"
     return False, "Already Inquired"
 
@@ -79,7 +88,7 @@ def track_product_view(product_id, session):
         return True, "Tracked"
     return False, "Already Viewed"
 
-@cache.memoize(timeout=300) # Cache for 5 minutes
+@cache.memoize(timeout=60) # Cache for 1 minute
 def get_trending_products(limit: int = 4):
     products = Product.query.order_by(
         (Product.views * 1 + Product.whatsapp_clicks * 5).desc(),

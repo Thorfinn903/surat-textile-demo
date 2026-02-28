@@ -12,7 +12,7 @@ def register_error_handlers(app):
     def handle_403(e):
         if request.path.startswith('/api/'):
             return error_response(message="Forbidden access", status_code=403)
-        return "Forbidden", 403
+        return render_template('errors/403.html'), 403
 
     @app.errorhandler(429)
     def handle_429(e):
