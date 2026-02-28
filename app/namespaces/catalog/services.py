@@ -2,7 +2,6 @@ from ...models import Product, InquiryLog, db
 from ...extensions import cache
 from datetime import datetime, date
 
-@cache.memoize(timeout=60)
 def get_filtered_products(search_query='', category='All', work_type='All', material_type='All', sort_by='newest', page=1, per_page=20):
     products_query = Product.query
     
@@ -88,7 +87,6 @@ def track_product_view(product_id, session):
         return True, "Tracked"
     return False, "Already Viewed"
 
-@cache.memoize(timeout=60) # Cache for 1 minute
 def get_trending_products(limit: int = 4):
     products = Product.query.order_by(
         (Product.views * 1 + Product.whatsapp_clicks * 5).desc(),

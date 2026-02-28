@@ -11,3 +11,7 @@
 2026-02-28 11:02:31,404 INFO: SocketIO Client Connected: BCSnZVjci4scCRm9AAAp [in /app/app/utils/sockets.py:8]
 2026-02-28 11:02:32,460 INFO: SocketIO Client Disconnected: BCSnZVjci4scCRm9AAAp [in /app/app/utils/sockets.py:13]
 2026-02-28 16:33:06,470 INFO: Digital Dukan Startup [in E:\Shubham\New Ideas\Textile_Demo_Site\app\utils\logging_config.py:31]
+2026-02-28 11:10:46,914 INFO: Digital Dukan Startup [in /app/app/utils/logging_config.py:31]
+2026-02-28 11:10:55,207 INFO: Digital Dukan Startup [in /app/app/utils/logging_config.py:31]
+2026-02-28 11:10:55,207 INFO: Digital Dukan Startup [in /app/app/utils/logging_config.py:31]
+2026-02-28 16:41:33,990 INFO: Digital Dukan Startup [in E:\Shubham\New Ideas\Textile_Demo_Site\app\utils\logging_config.py:31]

@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 from ...utils.file_helpers import optimize_image
 
 
-@cache.memoize(timeout=60)
 def get_admin_stats():
     total_skus = Product.query.count()
     sold_out_count = Product.query.filter(Product.stock_status == 'SOLD OUT').count()
@@ -21,7 +20,6 @@ def get_admin_stats():
         'ready_stock_count': ready_stock_count
     }
 
-@cache.memoize(timeout=60)
 def get_performance_analytics():
     def get_monthly_stats(group_by_col):
         return db.session.query(
